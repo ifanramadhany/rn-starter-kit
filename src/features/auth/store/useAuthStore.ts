@@ -4,9 +4,9 @@ import { authStorage } from '../services/authStorage';
 type AuthState = {
   token: string | null;
   isLoading: boolean;
-  login: (token: string) => void;
-  logout: () => void;
-  init: () => void;
+  login: (token: string) => Promise<void>;
+  logout: () => Promise<void>;
+  init: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -14,22 +14,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
 
   login: (token) => {
-    authStorage.setToken(token);
-    set({ token });
+    return authStorage.setToken(token).then(() => {
+      set({ token });
+    });
   },
 
   logout: () => {
-    authStorage.removeToken();
-    set({ token: null });
+    return authStorage.removeToken().then(() => {
+      set({ token: null });
+    });
   },
 
-  init: () => {
+  init: async () => {
     set({ isLoading: true });
 
-    const token = authStorage.getToken();
+    const token = await authStorage.getToken();
 
+    set({ token });
     set({
-      token,
       isLoading: false,
     });
   },

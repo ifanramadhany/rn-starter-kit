@@ -1,17 +1,26 @@
-import { storage } from '../../../shared/storage/storage';
+import * as Keychain from 'react-native-keychain';
 
-const TOKEN_KEY = 'auth_token';
+const TOKEN_SERVICE = 'auth_token';
+const TOKEN_USERNAME = 'access_token';
 
 export const authStorage = {
   setToken: (token: string) => {
-    storage.set(TOKEN_KEY, token);
+    return Keychain.setGenericPassword(TOKEN_USERNAME, token, {
+      service: TOKEN_SERVICE,
+    });
   },
 
-  getToken: () => {
-    return storage.getString(TOKEN_KEY) ?? null;
+  getToken: async () => {
+    const credentials = await Keychain.getGenericPassword({
+      service: TOKEN_SERVICE,
+    });
+
+    return credentials ? credentials.password : null;
   },
 
   removeToken: () => {
-    storage.delete(TOKEN_KEY);
+    return Keychain.resetGenericPassword({
+      service: TOKEN_SERVICE,
+    });
   },
 };

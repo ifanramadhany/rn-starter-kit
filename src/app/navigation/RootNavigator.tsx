@@ -1,19 +1,58 @@
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { InitialState, NavigationContainer } from '@react-navigation/native';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 
 import { useAuthStore } from '../../features/auth';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
+import { navigationPersistence } from './navigationPersistence';
 
 export default function RootNavigator() {
   const { token, isLoading, init } = useAuthStore();
+  const [initialNavigationState, setInitialNavigationState] = useState<InitialState>();
+  const [isNavigationRestored, setIsNavigationRestored] = useState(false);
 
   useEffect(() => {
     init();
   }, [init]);
 
-  if (isLoading) {
+  useEffect(() => {
+    let isMounted = true;
+
+    async function restoreNavigationState() {
+      if (isLoading) {
+        return;
+      }
+
+      setIsNavigationRestored(false);
+
+      if (!token) {
+        await navigationPersistence.clearState();
+
+        if (isMounted) {
+          setInitialNavigationState(undefined);
+          setIsNavigationRestored(true);
+        }
+
+        return;
+      }
+
+      const savedState = await navigationPersistence.getState();
+
+      if (isMounted) {
+        setInitialNavigationState(savedState);
+        setIsNavigationRestored(true);
+      }
+    }
+
+    restoreNavigationState();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoading, token]);
+
+  if (isLoading || !isNavigationRestored) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
@@ -22,7 +61,23 @@ export default function RootNavigator() {
     );
   }
 
-  return <NavigationContainer>{token ? <MainNavigator /> : <AuthNavigator />}</NavigationContainer>;
+  return (
+    <NavigationContainer
+      key={token ? 'main' : 'auth'}
+      initialState={token ? initialNavigationState : undefined}
+      onStateChange={(state) => {
+        if (token && state) {
+          navigationPersistence.setState(state).catch((error) => {
+            if (__DEV__) {
+              console.warn('Failed to persist navigation state.', error);
+            }
+          });
+        }
+      }}
+    >
+      {token ? <MainNavigator /> : <AuthNavigator />}
+    </NavigationContainer>
+  );
 }
 
 const styles = StyleSheet.create({
