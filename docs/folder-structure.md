@@ -45,6 +45,8 @@ Feature-owned product code. Each feature should be understandable and mostly edi
 src/features/
 ├── auth/
 │   ├── screens/
+│   │   ├── LoginScreen.tsx
+│   │   └── LoginScreen.styles.ts
 │   ├── services/
 │   ├── store/
 │   └── index.ts
@@ -56,6 +58,7 @@ src/features/
 Recommended feature folders:
 
 - `screens/` for route-level UI
+- `*.styles.ts` next to route-level screens for screen-specific styles
 - `components/` for feature-only components
 - `services/` for feature-specific IO and business operations
 - `store/` for feature state
@@ -71,8 +74,15 @@ Reusable cross-feature infrastructure.
 
 ```txt
 src/shared/
-└── storage/
-    └── storage.ts
+├── hooks/
+│   └── useResponsiveLayout.ts
+├── storage/
+│   └── storage.ts
+└── theme/
+    ├── breakpoints.ts
+    ├── colors.ts
+    ├── ThemeProvider.tsx
+    └── themeStorage.ts
 ```
 
 Use this folder for:
@@ -80,6 +90,9 @@ Use this folder for:
 - API clients
 - storage adapters
 - shared UI primitives
+- shared responsive layout hooks
+- shared theme tokens
+- shared theme provider and persisted theme preference
 - shared hooks
 - generic utilities
 - constants and shared types

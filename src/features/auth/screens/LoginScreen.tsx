@@ -1,9 +1,13 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, Button } from 'react-native';
+import { useTheme } from '../../../shared/theme/ThemeProvider';
 import { useAuthStore } from '../store/useAuthStore';
+import { createStyles } from './LoginScreen.styles';
 
 export default function LoginScreen() {
   const { login } = useAuthStore();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
     <View style={styles.container}>
@@ -12,15 +16,3 @@ export default function LoginScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    marginBottom: 16,
-    fontSize: 18,
-  },
-});

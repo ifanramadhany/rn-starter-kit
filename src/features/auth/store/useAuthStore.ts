@@ -13,26 +13,35 @@ export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   isLoading: true,
 
-  login: (token) => {
-    return authStorage.setToken(token).then(() => {
-      set({ token });
-    });
+  login: async (token) => {
+    await authStorage.setToken(token);
+
+    set({ token });
   },
 
-  logout: () => {
-    return authStorage.removeToken().then(() => {
+  logout: async () => {
+    try {
+      await authStorage.removeToken();
+    } finally {
       set({ token: null });
-    });
+    }
   },
 
   init: async () => {
     set({ isLoading: true });
 
-    const token = await authStorage.getToken();
+    try {
+      const token = await authStorage.getToken();
 
-    set({ token });
-    set({
-      isLoading: false,
-    });
+      set({ token });
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('Failed to restore auth token.', error);
+      }
+
+      set({ token: null });
+    } finally {
+      set({ isLoading: false });
+    }
   },
 }));

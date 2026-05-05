@@ -1,15 +1,24 @@
 import React from 'react';
-import { StatusBar, useColorScheme } from 'react-native';
+import { StatusBar } from 'react-native';
 import RootNavigator from './navigation/RootNavigator';
 import AppProviders from './providers/AppProviders';
+import { useTheme } from '../shared/theme/ThemeProvider';
 
 export default function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
   return (
     <AppProviders>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <RootNavigator />
+      <AppContent />
     </AppProviders>
+  );
+}
+
+function AppContent() {
+  const { resolvedScheme } = useTheme();
+
+  return (
+    <>
+      <StatusBar barStyle={resolvedScheme === 'dark' ? 'light-content' : 'dark-content'} />
+      <RootNavigator />
+    </>
   );
 }

@@ -16,7 +16,7 @@
 - `npm run lint:fix` fixes supported lint issues.
 - `npm run format` formats files with Prettier.
 - `npm run typecheck` runs TypeScript without emitting files.
-- `npm test` runs Jest.
+- `npm test` runs Jest with Watchman disabled in `jest.config.js` for CI and restricted environments.
 
 ## Architecture
 
@@ -58,9 +58,25 @@ Avoid importing another feature's internal files unless the dependency is intent
 ## File Naming
 
 - Components and screens: PascalCase, for example `LoginScreen.tsx`.
+- Screen styles: sibling PascalCase style files, for example `LoginScreen.styles.ts`.
 - Hooks and stores: camelCase with `use` prefix, for example `useAuthStore.ts`.
 - Services and utilities: camelCase, for example `authStorage.ts`.
 - Public feature exports: `index.ts`.
+
+## Styling
+
+- Keep route-level screen styles in a sibling `.styles.ts` file.
+- Use the same base name as the screen, for example `PostsScreen.tsx` and `PostsScreen.styles.ts`.
+- Keep small feature-only component styles inline until they grow or become shared.
+- Keep shared color tokens in `src/shared/theme/colors.ts`.
+- Use color tokens from `colors` instead of hardcoded hex or `rgba()` values in feature styles.
+- Add dark-mode values to `colorPalettes.dark` so components can keep referring to the same token names.
+- Use `useTheme()` for theme-aware UI. The app defaults to the OS color scheme through `system` mode.
+- Persist user theme choice as `system`, `light`, or `dark`; do not store raw color values in app storage.
+- Export screen styles as `createStyles(colors)` when they depend on the active theme.
+- Use `useResponsiveLayout()` and shared breakpoints for tablet/large-screen layout changes.
+- Prefer width classes, max widths, flexible columns, and spacing changes over device-specific checks.
+- Move other reusable design primitives, spacing, and typography into `src/shared/` when multiple features need them.
 
 ## State Management
 
@@ -75,11 +91,19 @@ Avoid importing another feature's internal files unless the dependency is intent
 - Do not hardcode secrets or encryption keys in source code.
 - For production authentication tokens, prefer a platform secure-storage solution.
 
+## Environment
+
+- Keep required environment variables in `.env.example` with safe example values.
+- Read env values through `src/shared/config/env.ts`.
+- Validate required env values at startup so missing configuration fails clearly.
+- Do not store secrets in React Native env files; bundled env values are visible in the app build.
+
 ## Testing
 
 - Add tests near the code when behavior is feature-specific.
 - Keep app-level smoke tests in `__tests__/`.
 - CI should run lint, typecheck, and tests before merge.
+- Keep tests independent from local Watchman availability.
 
 ## Git Workflow
 

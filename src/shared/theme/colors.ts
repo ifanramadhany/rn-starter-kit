@@ -1,0 +1,41 @@
+export const colorPalettes = {
+  light: {
+    background: '#f8fafc',
+    surface: '#ffffff',
+    border: '#e2e8f0',
+    inputBorder: '#cbd5e1',
+    text: '#0f172a',
+    textMuted: '#334155',
+    textSubtle: '#475569',
+    accentText: '#2563eb',
+    overlay: 'rgba(15, 23, 42, 0.45)',
+    successText: '#166534',
+    successBackground: '#dcfce7',
+    warningText: '#854d0e',
+    warningBackground: '#fef3c7',
+    dangerText: '#991b1b',
+    dangerBackground: '#fee2e2',
+    dangerAction: '#dc2626',
+  },
+  dark: {
+    background: '#020617',
+    surface: '#0f172a',
+    border: '#334155',
+    inputBorder: '#475569',
+    text: '#f8fafc',
+    textMuted: '#cbd5e1',
+    textSubtle: '#94a3b8',
+    accentText: '#93c5fd',
+    overlay: 'rgba(2, 6, 23, 0.7)',
+    successText: '#86efac',
+    successBackground: '#14532d',
+    warningText: '#fde68a',
+    warningBackground: '#713f12',
+    dangerText: '#fecaca',
+    dangerBackground: '#7f1d1d',
+    dangerAction: '#ef4444',
+  },
+} as const;
+
+export type ColorScheme = keyof typeof colorPalettes;
+export type AppColors = (typeof colorPalettes)[ColorScheme];

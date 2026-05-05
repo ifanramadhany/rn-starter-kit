@@ -1,25 +1,20 @@
-import React, { useState } from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  FlatList,
-  Modal,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { ActivityIndicator, Button, FlatList, Modal, Text, TextInput, View } from 'react-native';
 import { ApiError } from '../../../shared/api/errors';
+import { useTheme } from '../../../shared/theme/ThemeProvider';
 import PostCard from '../components/PostCard';
 import { useCreatePostMutation } from '../hooks/useCreatePostMutation';
 import { useDeletePostMutation } from '../hooks/useDeletePostMutation';
 import { usePostListQuery } from '../hooks/usePostListQuery';
 import { useUpdatePostMutation } from '../hooks/useUpdatePostMutation';
 import type { Post } from '../types';
+import { createStyles } from './PostsScreen.styles';
 
 type MutationType = 'create' | 'update' | 'delete';
 
 export default function PostsScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const postsQuery = usePostListQuery();
   const createPostMutation = useCreatePostMutation();
   const updatePostMutation = useUpdatePostMutation();
@@ -130,7 +125,9 @@ export default function PostsScreen() {
       </View>
 
       {mutationMessage ? (
-        <Text style={[styles.message, getMessageStyle(lastMutationType)]}>{mutationMessage}</Text>
+        <Text style={[styles.message, getMessageStyle(lastMutationType, styles)]}>
+          {mutationMessage}
+        </Text>
       ) : null}
 
       <FlatList
@@ -199,7 +196,7 @@ export default function PostsScreen() {
               <Button title="Cancel" onPress={() => setPostToDelete(null)} />
               <Button
                 title={deletePostMutation.isPending ? 'Deleting...' : 'Delete'}
-                color="#dc2626"
+                color={colors.dangerAction}
                 onPress={handleDelete}
                 disabled={deletePostMutation.isPending}
               />
@@ -237,7 +234,7 @@ function getMutationMessage({
   return undefined;
 }
 
-function getMessageStyle(type: MutationType | null) {
+function getMessageStyle(type: MutationType | null, styles: ReturnType<typeof createStyles>) {
   if (type === 'update') {
     return styles.updateMessage;
   }
@@ -248,110 +245,3 @@ function getMessageStyle(type: MutationType | null) {
 
   return styles.createMessage;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  centerContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  statusText: {
-    marginTop: 12,
-    color: '#475569',
-  },
-  errorText: {
-    marginBottom: 12,
-    color: '#b91c1c',
-    textAlign: 'center',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#ffffff',
-    borderBottomColor: '#e2e8f0',
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  headerText: {
-    flex: 1,
-  },
-  title: {
-    color: '#0f172a',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  subtitle: {
-    marginTop: 2,
-    color: '#64748b',
-  },
-  message: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  createMessage: {
-    color: '#166534',
-    backgroundColor: '#dcfce7',
-  },
-  updateMessage: {
-    color: '#854d0e',
-    backgroundColor: '#fef3c7',
-  },
-  deleteMessage: {
-    color: '#991b1b',
-    backgroundColor: '#fee2e2',
-  },
-  listContent: {
-    padding: 20,
-    gap: 12,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)',
-  },
-  modalContent: {
-    padding: 20,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
-    gap: 12,
-  },
-  modalTitle: {
-    color: '#0f172a',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  modalText: {
-    color: '#475569',
-  },
-  deleteTitle: {
-    color: '#0f172a',
-    fontWeight: '700',
-  },
-  input: {
-    minHeight: 44,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
-    color: '#0f172a',
-    backgroundColor: '#ffffff',
-  },
-  bodyInput: {
-    minHeight: 120,
-    textAlignVertical: 'top',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 8,
-  },
-});

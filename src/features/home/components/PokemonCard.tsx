@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import type { AppColors } from '../../../shared/theme/colors';
+import { useTheme } from '../../../shared/theme/ThemeProvider';
 import type { PokemonListItem } from '../services/pokemonApi';
 import { formatPokemonName, getPokemonImageUrl } from '../utils/pokemon';
 
@@ -9,6 +11,9 @@ type PokemonCardProps = {
 };
 
 export default function PokemonCard({ pokemon, displayNumber }: PokemonCardProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={styles.card}>
       <Image source={{ uri: getPokemonImageUrl(pokemon.url) }} style={styles.image} />
@@ -22,32 +27,34 @@ export default function PokemonCard({ pokemon, displayNumber }: PokemonCardProps
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    minHeight: 190,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
-    borderColor: '#e2e8f0',
-    borderWidth: 1,
-    justifyContent: 'space-between',
-  },
-  image: {
-    width: '100%',
-    height: 120,
-    resizeMode: 'contain',
-  },
-  info: {
-    marginTop: 10,
-  },
-  number: {
-    color: '#64748b',
-    fontWeight: '600',
-  },
-  name: {
-    color: '#0f172a',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+function createStyles(colors: AppColors) {
+  return StyleSheet.create({
+    card: {
+      flex: 1,
+      minHeight: 190,
+      padding: 12,
+      borderRadius: 8,
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderWidth: 1,
+      justifyContent: 'space-between',
+    },
+    image: {
+      width: '100%',
+      height: 120,
+      resizeMode: 'contain',
+    },
+    info: {
+      marginTop: 10,
+    },
+    number: {
+      color: colors.textSubtle,
+      fontWeight: '600',
+    },
+    name: {
+      color: colors.text,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+  });
+}

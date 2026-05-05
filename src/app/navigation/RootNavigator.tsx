@@ -1,13 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { InitialState, NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  DarkTheme,
+  DefaultTheme,
+  InitialState,
+  NavigationContainer,
+} from '@react-navigation/native';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 
 import { useAuthStore } from '../../features/auth';
+import type { AppColors } from '../../shared/theme/colors';
+import { useTheme } from '../../shared/theme/ThemeProvider';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
 import { navigationPersistence } from './navigationPersistence';
 
 export default function RootNavigator() {
+  const { colors, resolvedScheme } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const navigationTheme = resolvedScheme === 'dark' ? DarkTheme : DefaultTheme;
   const { token, isLoading, init } = useAuthStore();
   const [initialNavigationState, setInitialNavigationState] = useState<InitialState>();
   const [isNavigationRestored, setIsNavigationRestored] = useState(false);
@@ -26,22 +36,34 @@ export default function RootNavigator() {
 
       setIsNavigationRestored(false);
 
-      if (!token) {
-        await navigationPersistence.clearState();
+      try {
+        if (!token) {
+          await navigationPersistence.clearState();
+
+          if (isMounted) {
+            setInitialNavigationState(undefined);
+          }
+
+          return;
+        }
+
+        const savedState = await navigationPersistence.getState();
+
+        if (isMounted) {
+          setInitialNavigationState(savedState);
+        }
+      } catch (error) {
+        if (__DEV__) {
+          console.warn('Failed to restore navigation state.', error);
+        }
 
         if (isMounted) {
           setInitialNavigationState(undefined);
+        }
+      } finally {
+        if (isMounted) {
           setIsNavigationRestored(true);
         }
-
-        return;
-      }
-
-      const savedState = await navigationPersistence.getState();
-
-      if (isMounted) {
-        setInitialNavigationState(savedState);
-        setIsNavigationRestored(true);
       }
     }
 
@@ -64,6 +86,7 @@ export default function RootNavigator() {
   return (
     <NavigationContainer
       key={token ? 'main' : 'auth'}
+      theme={navigationTheme}
       initialState={token ? initialNavigationState : undefined}
       onStateChange={(state) => {
         if (token && state) {
@@ -80,14 +103,18 @@ export default function RootNavigator() {
   );
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 18,
-  },
-});
+function createStyles(colors: AppColors) {
+  return StyleSheet.create({
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+    loadingText: {
+      marginTop: 16,
+      fontSize: 18,
+      color: colors.text,
+    },
+  });
+}

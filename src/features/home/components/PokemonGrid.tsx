@@ -9,11 +9,18 @@ import {
   View,
 } from 'react-native';
 import { ApiError } from '../../../shared/api/errors';
+import { useResponsiveLayout } from '../../../shared/hooks/useResponsiveLayout';
+import type { AppColors } from '../../../shared/theme/colors';
+import { useTheme } from '../../../shared/theme/ThemeProvider';
 import { usePokemonListInfiniteQuery } from '../hooks/usePokemonListInfiniteQuery';
 import type { PokemonListItem } from '../services/pokemonApi';
 import PokemonCard from './PokemonCard';
 
 export default function PokemonGrid() {
+  const { colors } = useTheme();
+  const { isTablet, isDesktop } = useResponsiveLayout();
+  const columnCount = isDesktop ? 4 : isTablet ? 3 : 2;
+  const styles = useMemo(() => createStyles(colors, { isTablet }), [colors, isTablet]);
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } =
     usePokemonListInfiniteQuery();
 
@@ -52,8 +59,9 @@ export default function PokemonGrid() {
 
   return (
     <FlatList
+      key={columnCount}
       data={pokemonList}
-      numColumns={2}
+      numColumns={columnCount}
       keyExtractor={(item) => item.name}
       renderItem={renderPokemon}
       contentContainerStyle={styles.listContent}
@@ -71,31 +79,38 @@ export default function PokemonGrid() {
   );
 }
 
-const styles = StyleSheet.create({
-  centerContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  statusText: {
-    marginTop: 12,
-    color: '#475569',
-  },
-  errorText: {
-    marginBottom: 12,
-    color: '#b91c1c',
-    textAlign: 'center',
-  },
-  listContent: {
-    padding: 20,
-    paddingBottom: 28,
-  },
-  listRow: {
-    gap: 12,
-    marginBottom: 12,
-  },
-  footer: {
-    paddingVertical: 16,
-  },
-});
+type PokemonGridStyleOptions = {
+  isTablet: boolean;
+};
+
+function createStyles(colors: AppColors, { isTablet }: PokemonGridStyleOptions) {
+  return StyleSheet.create({
+    centerContent: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+    },
+    statusText: {
+      marginTop: 12,
+      color: colors.textMuted,
+    },
+    errorText: {
+      marginBottom: 12,
+      color: colors.dangerText,
+      textAlign: 'center',
+    },
+    listContent: {
+      paddingHorizontal: isTablet ? 32 : 20,
+      paddingTop: 20,
+      paddingBottom: isTablet ? 36 : 28,
+    },
+    listRow: {
+      gap: 12,
+      marginBottom: 12,
+    },
+    footer: {
+      paddingVertical: 16,
+    },
+  });
+}

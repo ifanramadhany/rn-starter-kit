@@ -1,18 +1,16 @@
 import * as Keychain from 'react-native-keychain';
-
-const TOKEN_SERVICE = 'auth_token';
-const TOKEN_USERNAME = 'access_token';
+import { KEYCHAIN_SERVICES, KEYCHAIN_USERNAMES } from '../constants/keychain';
 
 export const authStorage = {
   setToken: (token: string) => {
-    return Keychain.setGenericPassword(TOKEN_USERNAME, token, {
-      service: TOKEN_SERVICE,
+    return Keychain.setGenericPassword(KEYCHAIN_USERNAMES.accessToken, token, {
+      service: KEYCHAIN_SERVICES.accessToken,
     });
   },
 
   getToken: async () => {
     const credentials = await Keychain.getGenericPassword({
-      service: TOKEN_SERVICE,
+      service: KEYCHAIN_SERVICES.accessToken,
     });
 
     return credentials ? credentials.password : null;
@@ -20,7 +18,7 @@ export const authStorage = {
 
   removeToken: () => {
     return Keychain.resetGenericPassword({
-      service: TOKEN_SERVICE,
+      service: KEYCHAIN_SERVICES.accessToken,
     });
   },
 };
