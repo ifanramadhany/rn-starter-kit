@@ -8,11 +8,22 @@ import {
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 
 import { useAuthStore } from '../../features/auth';
+import { logger } from '../../shared/logging/logger';
 import type { AppColors } from '../../shared/theme/colors';
 import { useTheme } from '../../shared/theme/ThemeProvider';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
 import { navigationPersistence } from './navigationPersistence';
+
+function getActiveRouteName(state: InitialState): string | undefined {
+  const route = state.routes[state.index ?? 0];
+
+  if (route?.state) {
+    return getActiveRouteName(route.state as InitialState);
+  }
+
+  return route?.name;
+}
 
 export default function RootNavigator() {
   const { colors, resolvedScheme } = useTheme();
@@ -89,6 +100,10 @@ export default function RootNavigator() {
       theme={navigationTheme}
       initialState={token ? initialNavigationState : undefined}
       onStateChange={(state) => {
+        if (state) {
+          logger.debug('Current screen:', getActiveRouteName(state));
+        }
+
         if (token && state) {
           navigationPersistence.setState(state).catch((error) => {
             if (__DEV__) {
