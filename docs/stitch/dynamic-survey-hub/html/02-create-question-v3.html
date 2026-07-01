@@ -1,0 +1,300 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Create/Edit Question - The Survey</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e1e3e4",
+                    "outline": "#737784",
+                    "on-tertiary-fixed": "#001f2a",
+                    "on-secondary-fixed": "#002020",
+                    "primary-container": "#0f52ba",
+                    "tertiary-fixed-dim": "#adcbda",
+                    "primary-fixed-dim": "#b0c6ff",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f8f9fa",
+                    "error-container": "#ffdad6",
+                    "outline-variant": "#c3c6d5",
+                    "primary": "#003c90",
+                    "surface-container": "#edeeef",
+                    "on-tertiary-fixed-variant": "#2e4b57",
+                    "secondary": "#006a6a",
+                    "background": "#f8f9fa",
+                    "surface-dim": "#d9dadb",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#001945",
+                    "inverse-primary": "#b0c6ff",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#274451",
+                    "primary-fixed": "#d9e2ff",
+                    "tertiary-fixed": "#c9e7f7",
+                    "on-secondary-container": "#006e6e",
+                    "tertiary-container": "#3f5c69",
+                    "surface-container-high": "#e7e8e9",
+                    "surface": "#f8f9fa",
+                    "secondary-fixed-dim": "#76d6d5",
+                    "on-primary-container": "#bcceff",
+                    "on-secondary-fixed-variant": "#004f4f",
+                    "inverse-surface": "#2e3132",
+                    "surface-variant": "#e1e3e4",
+                    "on-primary-fixed-variant": "#00419c",
+                    "on-background": "#191c1d",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#434653",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#1d59c1",
+                    "secondary-fixed": "#93f2f2",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#90efef",
+                    "on-tertiary-container": "#b5d3e3",
+                    "on-surface": "#191c1d",
+                    "surface-container-low": "#f3f4f5",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f0f1f2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "xl": "80px",
+                    "md": "24px",
+                    "margin-desktop": "40px",
+                    "max-width-content": "1200px",
+                    "lg": "48px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .custom-shadow-l2 {
+            box-shadow: 0 4px 12px rgba(15, 82, 186, 0.08);
+        }
+        /* Custom Toggle Switch Styles */
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            position: relative;
+            display: inline-block;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #737784; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #006a6a; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .survey-progress {
+            height: 4px;
+            background: #edeeef;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 70;
+        }
+        .survey-progress-fill {
+            height: 100%;
+            background: #006a6a;
+            width: 65%;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen"><header class="bg-surface dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline fixed top-0 w-full z-50 flex justify-between items-center px-lg h-[64px]"><div class="flex items-center justify-between w-full"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant"><img class="w-full h-full object-cover" data-alt="A professional high-resolution headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBub4eSrjbCOWO_TUoCoNTCa2xE3Kimc49pDWQEFueCvY3zQDbOv29Ln9UECgsnI2nQfXoVswCAEJRnFvYFQ31xQJt9NDsY6tz5vz9MjBio7_FG1Un_Y4cyxXhBF-qTlZU7XwEjCj4tfxEb1DxJ0bIP01QOuU6MgnS6liXDQpSOJ_NzEs8QWGJic4pljQp12ewkhjKwarusFYZbXGKPTDlde_KD3s8xjiiAFuvd5ry4Z-q-WGgz0wy_u1xyuU1jgdMZVD8rc1ZaF74"></div><h1 class="font-display-lg text-[24px] font-bold text-primary dark:text-primary-fixed">The Survey</h1></div></div></header>
+<!-- Survey Progress Indicator at very top -->
+<main class="flex-grow max-w-[1200px] mx-auto px-6 pt-12 pb-24 md:pb-32">
+<!-- Header Section -->
+<div class="mb-10 text-left flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-2">Create Question</h1>
+<p class="text-on-surface-variant font-body-md">Add a new question and configure its response options.</p>
+</div>
+</div>
+<form class="space-y-gutter" id="question-form">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-start">
+<!-- Left Column: Question Config -->
+<div class="md:col-span-5 space-y-gutter">
+<!-- Question Text Card -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 custom-shadow-l2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-3 uppercase tracking-wider" for="question-text">Question Text</label>
+<textarea class="w-full bg-surface-container-low border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg p-4 font-body-md outline-none transition-all placeholder:text-outline h-[160px] resize-none" id="question-text" placeholder="Enter your question here..."></textarea>
+</section>
+<!-- Status Toggle -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center justify-between">
+<div>
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Status</h3>
+<p class="font-headline-md text-secondary" id="status-label">Active</p>
+</div>
+<label class="toggle-switch scale-125">
+<input checked="" onchange="updateStatus(this.checked)" type="checkbox">
+<span class="slider"></span>
+</label>
+</section>
+<!-- Selection Type -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant mb-4 uppercase tracking-wider">Selection Type</h3>
+<div class="flex gap-3">
+<label class="flex-1 cursor-pointer">
+<input checked="" class="hidden peer" name="selection-type" type="radio" value="single">
+<div class="flex flex-col items-center justify-center py-4 border-2 border-outline-variant rounded-xl peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:border-primary transition-all group">
+<span class="material-symbols-outlined mb-1 group-peer-checked:fill-icon">radio_button_checked</span>
+<span class="font-label-md text-label-md">Single Choice</span>
+</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="hidden peer" name="selection-type" type="radio" value="multiple">
+<div class="flex flex-col items-center justify-center py-4 border-2 border-outline-variant rounded-xl peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:border-primary transition-all group">
+<span class="material-symbols-outlined mb-1">check_box</span>
+<span class="font-label-md text-label-md">Multiple Choice</span>
+</div>
+</label>
+</div>
+</section>
+</div>
+<!-- Right Column: Answer Options -->
+<div class="md:col-span-7">
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 custom-shadow-l2 h-full flex flex-col min-h-[460px]">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Answer Options</h3>
+<button class="flex items-center gap-2 text-secondary font-label-md text-label-md bg-secondary-container/30 hover:bg-secondary-container px-4 py-2 rounded-full transition-all active:scale-95" onclick="addOption()" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                            Add Choice
+                        </button>
+</div>
+<div class="space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-grow" id="options-container">
+<!-- Option Row 1 -->
+<div class="flex items-center gap-4 group animate-in fade-in slide-in-from-top-2 duration-300">
+<span class="material-symbols-outlined text-outline cursor-grab hover:text-primary transition-colors">drag_indicator</span>
+<div class="flex-1 flex items-center bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 group-focus-within:border-primary transition-all">
+<input class="bg-transparent border-none focus:ring-0 w-full font-body-md text-on-surface p-0" placeholder="Option 1" type="text" value="">
+</div>
+<button class="material-symbols-outlined text-error hover:bg-error-container p-3 rounded-full transition-colors active:scale-90" onclick="this.parentElement.remove()" type="button">delete</button>
+</div>
+<!-- Option Row 2 -->
+<div class="flex items-center gap-4 group animate-in fade-in slide-in-from-top-2 duration-300">
+<span class="material-symbols-outlined text-outline cursor-grab hover:text-primary transition-colors">drag_indicator</span>
+<div class="flex-1 flex items-center bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 group-focus-within:border-primary transition-all">
+<input class="bg-transparent border-none focus:ring-0 w-full font-body-md text-on-surface p-0" placeholder="Option 2" type="text" value="">
+</div>
+<button class="material-symbols-outlined text-error hover:bg-error-container p-3 rounded-full transition-colors active:scale-90" onclick="this.parentElement.remove()" type="button">delete</button>
+</div>
+<!-- Option Row 3 -->
+<div class="flex items-center gap-4 group animate-in fade-in slide-in-from-top-2 duration-300">
+<span class="material-symbols-outlined text-outline cursor-grab hover:text-primary transition-colors">drag_indicator</span>
+<div class="flex-1 flex items-center bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 group-focus-within:border-primary transition-all">
+<input class="bg-transparent border-none focus:ring-0 w-full font-body-md text-on-surface p-0" placeholder="Option 3" type="text" value="">
+</div>
+<button class="material-symbols-outlined text-error hover:bg-error-container p-3 rounded-full transition-colors active:scale-90" onclick="this.parentElement.remove()" type="button">delete</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Action Bar Within Content -->
+<div class="flex justify-between items-center pt-8 border-t border-outline-variant mb-8">
+<button class="text-on-surface-variant font-label-md px-6 py-3 hover:bg-surface-container-high rounded-lg transition-all" type="button">Discard Changes</button>
+<button class="bg-primary text-white font-label-md text-label-md px-16 h-14 rounded-xl shadow-lg hover:bg-primary-container hover:shadow-xl transition-all active:scale-95 flex items-center gap-2" type="submit"><span class="material-symbols-outlined">add_circle</span> Create Question</button>
+</div>
+</form>
+</main>
+<!-- Persistent Bottom Navigation Bar (Optimized for iPad/Tablet) -->
+<nav class="fixed bottom-0 w-full flex justify-center items-center h-[80px] bg-surface-container-low dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline z-50"><div class="w-full max-w-[600px] flex justify-between items-center px-8"><div class="relative flex flex-col items-center justify-center px-10 py-3 bg-secondary-container text-on-secondary-container rounded-full transition-all active:scale-95 duration-200 cursor-pointer"><span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">quiz</span><span class="font-label-sm font-bold">Questions</span></div><div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer group"><span class="material-symbols-outlined mb-1 group-hover:scale-110 duration-200">play_circle</span><span class="font-label-sm">Start Survey</span></div><div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer group"><span class="material-symbols-outlined mb-1 group-hover:scale-110 duration-200">insert_chart</span><span class="font-label-sm">Dashboard</span></div></div></nav>
+<script>
+    function updateStatus(checked) {
+        const label = document.getElementById('status-label');
+        label.innerText = checked ? 'Active' : 'Inactive';
+        if (checked) {
+            label.classList.remove('text-outline');
+            label.classList.add('text-secondary');
+        } else {
+            label.classList.remove('text-secondary');
+            label.classList.add('text-outline');
+        }
+    }
+
+    function addOption() {
+        const container = document.getElementById('options-container');
+        const newOption = document.createElement('div');
+        newOption.className = "flex items-center gap-4 group animate-in fade-in slide-in-from-top-2 duration-300";
+        newOption.innerHTML = `
+            <span class="material-symbols-outlined text-outline cursor-grab hover:text-primary transition-colors">drag_indicator</span>
+            <div class="flex-1 flex items-center bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 group-focus-within:border-primary transition-all">
+                <input type="text" placeholder="Type answer choice..." class="bg-transparent border-none focus:ring-0 w-full font-body-md text-on-surface p-0">
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="material-symbols-outlined text-error hover:bg-error-container p-3 rounded-full transition-colors active:scale-90">delete</button>
+        `;
+        container.appendChild(newOption);
+        newOption.querySelector('input').focus();
+        
+        // Scroll to bottom
+        container.scrollTop = container.scrollHeight;
+    }
+
+    document.getElementById('question-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving Changes...</span>`;
+        
+        setTimeout(() => {
+            btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Changes Saved`;
+            btn.classList.replace('bg-primary', 'bg-secondary');
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.replace('bg-secondary', 'bg-primary');
+            }, 2500);
+        }, 1200);
+    });
+</script>
+</body></html>

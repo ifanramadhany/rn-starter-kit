@@ -1,0 +1,262 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>The Survey - Participant Biodata</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Hanken Grotesk & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Design System Tokens & Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#00419c",
+                    "primary-fixed-dim": "#b0c6ff",
+                    "on-background": "#191c1d",
+                    "error-container": "#ffdad6",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#d9e2ff",
+                    "surface-dim": "#d9dadb",
+                    "surface-container-highest": "#e1e3e4",
+                    "surface-tint": "#1d59c1",
+                    "on-tertiary-fixed-variant": "#2e4b57",
+                    "outline-variant": "#c3c6d5",
+                    "on-secondary-fixed-variant": "#004f4f",
+                    "error": "#ba1a1a",
+                    "surface-container-high": "#e7e8e9",
+                    "surface-bright": "#f8f9fa",
+                    "primary": "#003c90",
+                    "secondary": "#006a6a",
+                    "tertiary-fixed": "#c9e7f7",
+                    "surface": "#f8f9fa",
+                    "inverse-on-surface": "#f0f1f2",
+                    "surface-container-lowest": "#ffffff",
+                    "background": "#f8f9fa",
+                    "tertiary-container": "#3f5c69",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#737784",
+                    "on-secondary-fixed": "#002020",
+                    "inverse-surface": "#2e3132",
+                    "inverse-primary": "#b0c6ff",
+                    "tertiary": "#274451",
+                    "secondary-container": "#90efef",
+                    "on-tertiary-fixed": "#001f2a",
+                    "on-secondary-container": "#006e6e",
+                    "on-primary-fixed": "#001945",
+                    "secondary-fixed-dim": "#76d6d5",
+                    "surface-variant": "#e1e3e4",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#b5d3e3",
+                    "secondary-fixed": "#93f2f2",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed-dim": "#adcbda",
+                    "on-error-container": "#93000a",
+                    "on-primary-container": "#bcceff",
+                    "surface-container": "#edeeef",
+                    "on-surface": "#191c1d",
+                    "on-surface-variant": "#434653",
+                    "primary-container": "#0f52ba",
+                    "surface-container-low": "#f3f4f5"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "max-width-content": "1200px",
+                    "margin-mobile": "16px",
+                    "sm": "12px",
+                    "base": "8px",
+                    "md": "24px",
+                    "xs": "4px",
+                    "lg": "48px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "xl": "80px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                    "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                    "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                    "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                    "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                    "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                    "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                    "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            color: #191c1d;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-radio:checked {
+            background-color: #003c90;
+            border-color: #003c90;
+        }
+        .bento-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 82, 186, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen flex flex-col items-center">
+<!-- TopAppBar (Simplified for Tablet) -->
+<header class="bg-surface dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline fixed top-0 w-full z-50 flex justify-between items-center px-lg h-[64px]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional high-resolution headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBub4eSrjbCOWO_TUoCoNTCa2xE3Kimc49pDWQEFueCvY3zQDbOv29Ln9UECgsnI2nQfXoVswCAEJRnFvYFQ31xQJt9NDsY6tz5vz9MjBio7_FG1Un_Y4cyxXhBF-qTlZU7XwEjCj4tfxEb1DxJ0bIP01QOuU6MgnS6liXDQpSOJ_NzEs8QWGJic4pljQp12ewkhjKwarusFYZbXGKPTDlde_KD3s8xjiiAFuvd5ry4Z-q-WGgz0wy_u1xyuU1jgdMZVD8rc1ZaF74">
+</div>
+<h1 class="font-display-lg text-[24px] font-bold text-primary dark:text-primary-fixed">The Survey</h1>
+</div>
+
+</header>
+<!-- Progress Bar -->
+
+<!-- Main Content Canvas (Tablet Optimized) -->
+<main class="flex-grow w-full max-w-[820px] pt-[104px] pb-[120px] px-lg">
+<section class="space-y-gutter">
+<!-- Header Section -->
+<div class="mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Participant Biodata</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[600px]">Please provide the initial details for the current survey session. This data is used for demographic segmentation.</p>
+</div>
+<!-- Centered Tablet Form Layout -->
+<div class="flex flex-col gap-gutter">
+<!-- Instruction Card -->
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl bento-card">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary">info</span>
+<h3 class="font-label-md text-label-md text-secondary uppercase tracking-widest">Surveyor Guideline</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Ensure anonymity of the respondent while accurately capturing these two core metrics. The following details are mandatory to proceed to the customer-facing interface.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Gender Selection Card -->
+<div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl bento-card flex flex-col">
+<label class="block font-label-sm text-label-sm text-primary mb-6 uppercase tracking-wider">01. Gender Selection</label>
+<div class="space-y-4 flex-grow">
+<label class="flex items-center group cursor-pointer p-4 border border-outline-variant rounded-xl hover:bg-surface-container transition-colors">
+<input class="w-6 h-6 text-primary border-outline-variant focus:ring-primary focus:ring-offset-0 custom-radio" name="gender" type="radio" value="male">
+<span class="ml-4 font-body-md text-body-md text-on-surface">Male</span>
+</label>
+<label class="flex items-center group cursor-pointer p-4 border border-outline-variant rounded-xl hover:bg-surface-container transition-colors">
+<input class="w-6 h-6 text-primary border-outline-variant focus:ring-primary focus:ring-offset-0 custom-radio" name="gender" type="radio" value="female">
+<span class="ml-4 font-body-md text-body-md text-on-surface">Female</span>
+</label>
+<label class="flex items-center group cursor-pointer p-4 border border-outline-variant rounded-xl hover:bg-surface-container transition-colors">
+<input class="w-6 h-6 text-primary border-outline-variant focus:ring-primary focus:ring-offset-0 custom-radio" name="gender" type="radio" value="other">
+<span class="ml-4 font-body-md text-body-md text-on-surface">Other / Prefer not to say</span>
+</label>
+</div>
+</div>
+<!-- Age Range Selection Card -->
+<div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl bento-card flex flex-col">
+<label class="block font-label-sm text-label-sm text-primary mb-6 uppercase tracking-wider">02. Age Range</label>
+<div class="space-y-4 flex-grow">
+<label class="flex items-center justify-between group cursor-pointer p-4 border border-outline-variant rounded-xl hover:bg-surface-container transition-colors">
+<div class="flex items-center">
+<input class="w-6 h-6 text-primary border-outline-variant focus:ring-primary focus:ring-offset-0 custom-radio" name="age" type="radio" value="18-35">
+<span class="ml-4 font-body-md text-body-md text-on-surface">18 - 35</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">person</span>
+</label>
+<label class="flex items-center justify-between group cursor-pointer p-4 border border-outline-variant rounded-xl hover:bg-surface-container transition-colors">
+<div class="flex items-center">
+<input class="w-6 h-6 text-primary border-outline-variant focus:ring-primary focus:ring-offset-0 custom-radio" name="age" type="radio" value="36-55">
+<span class="ml-4 font-body-md text-body-md text-on-surface">36 - 55</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">person_2</span>
+</label>
+<label class="flex items-center justify-between group cursor-pointer p-4 border border-outline-variant rounded-xl hover:bg-surface-container transition-colors">
+<div class="flex items-center">
+<input class="w-6 h-6 text-primary border-outline-variant focus:ring-primary focus:ring-offset-0 custom-radio" name="age" type="radio" value="56-above">
+<span class="ml-4 font-body-md text-body-md text-on-surface">56 - above</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">person_4</span>
+</label>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm">Estimated Duration</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">~4 mins</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Start Action Card -->
+<div class="flex justify-center pt-lg">
+<button class="group relative inline-flex items-center justify-center px-16 py-5 font-bold text-white transition-all duration-200 bg-primary rounded-xl hover:bg-primary-container active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary h-[64px] min-w-[280px] shadow-lg shadow-primary/20">
+<span class="font-headline-md text-headline-md">Start Survey</span>
+<span class="material-symbols-outlined ml-3 group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Persistent Bottom Navigation Bar (Tablet/Shared) -->
+<nav class="fixed bottom-0 w-full flex justify-center items-center h-[80px] bg-surface-container-low dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline z-50"><div class="w-full max-w-[600px] flex justify-between items-center px-8"><div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer group"><span class="material-symbols-outlined mb-1 group-hover:scale-110 duration-200">quiz</span><span class="font-label-sm">Questions</span></div><div class="relative flex flex-col items-center justify-center px-10 py-3 bg-secondary-container text-on-secondary-container rounded-full transition-all active:scale-95 duration-200 cursor-pointer"><span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">play_circle</span><span class="font-label-sm font-bold">Start Survey</span></div><div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer group"><span class="material-symbols-outlined mb-1 group-hover:scale-110 duration-200">insert_chart</span><span class="font-label-sm">Dashboard</span></div></div></nav>
+<!-- Visual Atmosphere: Subtle Gradient background elements -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 opacity-30">
+<div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-secondary-container blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary-fixed-dim blur-[120px]"></div>
+</div>
+<script>
+    // Interaction Logic for selection states
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const group = e.target.getAttribute('name');
+            
+            // Clear others in group
+            document.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                const parent = r.closest('label');
+                parent.classList.remove('border-primary', 'bg-surface-container', 'ring-1', 'ring-primary');
+                parent.classList.add('border-outline-variant');
+            });
+            
+            // Set active state
+            if(e.target.checked) {
+                const parent = e.target.closest('label');
+                parent.classList.remove('border-outline-variant');
+                parent.classList.add('border-primary', 'bg-surface-container', 'ring-1', 'ring-primary');
+            }
+        });
+    });
+
+    // Start Survey button feedback
+    document.querySelector('button').addEventListener('click', function() {
+        console.log('Survey Session Initialized');
+    });
+</script>
+
+
+</body></html>

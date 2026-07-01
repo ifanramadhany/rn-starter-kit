@@ -1,0 +1,280 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>The Survey - Admin Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#001945",
+                    "secondary-fixed-dim": "#76d6d5",
+                    "on-primary-fixed-variant": "#00419c",
+                    "secondary-fixed": "#93f2f2",
+                    "secondary-container": "#90efef",
+                    "primary-fixed-dim": "#b0c6ff",
+                    "on-surface": "#191c1d",
+                    "outline-variant": "#c3c6d5",
+                    "on-tertiary-container": "#b5d3e3",
+                    "on-background": "#191c1d",
+                    "on-secondary-fixed-variant": "#004f4f",
+                    "on-primary-container": "#bcceff",
+                    "inverse-surface": "#2e3132",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "surface-bright": "#f8f9fa",
+                    "on-tertiary-fixed-variant": "#2e4b57",
+                    "error-container": "#ffdad6",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "surface-variant": "#e1e3e4",
+                    "tertiary": "#274451",
+                    "outline": "#737784",
+                    "on-secondary-fixed": "#002020",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#d9dadb",
+                    "inverse-primary": "#b0c6ff",
+                    "surface-tint": "#1d59c1",
+                    "surface-container-low": "#f3f4f5",
+                    "tertiary-container": "#3f5c69",
+                    "primary-container": "#0f52ba",
+                    "surface-container-high": "#e7e8e9",
+                    "on-surface-variant": "#434653",
+                    "surface-container": "#edeeef",
+                    "on-secondary": "#ffffff",
+                    "background": "#f8f9fa",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed": "#c9e7f7",
+                    "tertiary-fixed-dim": "#adcbda",
+                    "surface": "#f8f9fa",
+                    "surface-container-highest": "#e1e3e4",
+                    "secondary": "#006a6a",
+                    "primary-fixed": "#d9e2ff",
+                    "primary": "#003c90",
+                    "on-tertiary-fixed": "#001f2a",
+                    "on-secondary-container": "#006e6e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "80px",
+                    "xs": "4px",
+                    "gutter": "24px",
+                    "base": "8px",
+                    "margin-desktop": "40px",
+                    "sm": "12px",
+                    "margin-mobile": "16px",
+                    "max-width-content": "1200px",
+                    "lg": "48px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            vertical-align: middle;
+        }
+        .chart-bar {
+            transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline sticky top-0 z-50 flex justify-between items-center w-full px-md h-[64px]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container flex items-center justify-center border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a senior administrator with a friendly expression. The lighting is bright and clean, consistent with a high-end corporate modernism aesthetic. The background is a soft, blurred office environment in shades of sapphire blue and slate gray, echoing the brand's professional and expert identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_75PQCb7SrE6UjfeB7yra4hvEAFXbeuTQnscl6HSTmcMqXvLjUDXvH7b-Gm_YlCE7abHIUjHoI6DVcdUuakNZjl7WO5a_WAPz3BKenJ5hUIkuQXG5Eo8VMr0_LLaiNVJINobpnG-ZZqYeiPg6nQOaoEeR08EHDG_ziAr8vW5953y9h7fBl19nomqdW3dIA98a4dhrdNM-AHsmyXt5WxvhRbTeHsBI6F9ave5GXkfSGKaxaTj-Qks5mhPZjE6vK4bNwS2CBCYhG4c">
+</div>
+<span class="font-headline-md text-headline-md text-primary dark:text-primary-fixed hidden md:block">The Survey</span>
+</div>
+
+<!-- Placeholder for symmetry or hidden settings as per prompt -->
+<div class="w-10"></div>
+</header>
+<main class="max-w-[1024px] mx-auto px-margin-mobile md:px-margin-desktop py-base">
+<!-- Survey Activity Section: Bento Grid Layout -->
+<section class="mt-md">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+<div class="flex justify-between items-center mb-lg">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Daily Survey Activity</h2>
+<p class="font-body-md text-on-surface-variant">Survey completions tracked over the last 30 days</p>
+</div>
+<div class="flex gap-2">
+  <div class="relative">
+    <select class="appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-md py-2 pr-10 font-label-md text-primary focus:ring-2 focus:ring-primary outline-none cursor-pointer">
+      <option value="1">January</option>
+      <option value="2">February</option>
+      <option value="3">March</option>
+      <option value="4">April</option>
+      <option value="5">May</option>
+      <option value="6">June</option>
+      <option value="7">July</option>
+      <option value="8">August</option>
+      <option value="9">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12" selected="">December</option>
+    </select>
+    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline">expand_more</span>
+  </div>
+  <div class="relative">
+    <select class="appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-md py-2 pr-10 font-label-md text-primary focus:ring-2 focus:ring-primary outline-none cursor-pointer">
+      <option value="2023">2023</option>
+      <option value="2024" selected="">2024</option>
+      <option value="2025">2025</option>
+    </select>
+    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline">expand_more</span>
+  </div>
+</div>
+</div>
+<!-- Custom Bar Chart -->
+<div class="h-64 flex items-end justify-around gap-1 px-2"><div class="flex flex-col items-center group w-full"><div class="bg-primary hover:bg-primary-container chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 40%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">1</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 45%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">2</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 50%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">3</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 42%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">4</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary hover:bg-primary-container chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 55%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">5</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 60%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">6</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 65%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">7</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 58%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">8</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 62%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">9</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary hover:bg-primary-container chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 70%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">10</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 75%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">11</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 80%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">12</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 72%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">13</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 78%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">14</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary hover:bg-primary-container chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 85%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">15</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 82%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">16</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 88%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">17</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 84%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">18</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 90%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">19</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary hover:bg-primary-container chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 95%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">20</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 92%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">21</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 85%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">22</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 80%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">23</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 75%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">24</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary hover:bg-primary-container chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 70%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">25</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 65%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">26</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 60%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">27</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 55%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">28</span></div><div class="flex flex-col items-center group w-full"><div class="bg-primary chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 50%;"></div><span class="mt-base font-label-sm text-on-surface-variant text-[10px]">29</span></div><div class="flex flex-col items-center group w-full"><div class="bg-secondary hover:bg-secondary-container chart-bar w-full max-w-[12px] rounded-t-sm" style="height: 45%;"></div><span class="mt-base font-label-sm text-primary font-bold text-[10px]">30</span></div></div>
+</div>
+</section>
+<!-- Detailed Results Table -->
+<section class="mt-gutter mb-xl">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-md border-b border-outline-variant bg-surface-bright">
+<h2 class="font-headline-md text-headline-md text-on-surface">Detailed Results</h2>
+<p class="font-label-sm text-on-surface-variant">Aggregate responses per question</p>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-md py-4 font-label-md text-on-surface uppercase tracking-wider">Question Text</th>
+<th class="px-md py-4 font-label-md text-on-surface uppercase tracking-wider">Answer Options &amp; Choice Count</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-md py-gutter max-w-sm">
+<p class="font-body-md text-on-surface font-semibold">How satisfied are you with our professional data dashboard interface?</p>
+</td>
+<td class="px-md py-gutter">
+<div class="flex flex-wrap gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm">Option A: 125 customers</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option B: 12 customers</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option C: 4 customers</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option D: 10 customers</span><span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option E: 2 customers</span><span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option F: 0 customers</span></div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-md py-gutter max-w-sm">
+<p class="font-body-md text-on-surface font-semibold">Which feature would you like to see improved in the next update?</p>
+</td>
+<td class="px-md py-gutter">
+<div class="flex flex-wrap gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm">Option A: 48 customers</span>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm">Option B: 82 customers</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option C: 15 customers</span>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-md py-gutter max-w-sm">
+<p class="font-body-md text-on-surface font-semibold">How likely are you to recommend 'The Survey' to a colleague?</p>
+</td>
+<td class="px-md py-gutter">
+<div class="flex flex-wrap gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm">Option A: 210 customers</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option B: 0 customers</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option C: 45 customers</span><span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option D: 12 customers</span><span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option E: 5 customers</span><span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-label-sm">Option F: 8 customers</span></div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-md bg-surface-bright border-t border-outline-variant flex justify-end">
+<button class="text-primary font-label-md flex items-center gap-1 hover:underline active:scale-95 transition-transform">
+<span class="">View All Questions</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full flex justify-around items-center px-4 py-2 bg-surface-container dark:bg-surface-container-low border-t border-outline-variant dark:border-outline z-50">
+<!-- Destination 1 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant dark:hover:bg-inverse-surface transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">quiz</span>
+<span class="font-label-sm text-label-sm">Questions</span>
+</a>
+<!-- Destination 2 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant dark:hover:bg-inverse-surface transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">play_circle</span>
+<span class="font-label-sm text-label-sm">Start Survey</span>
+</a>
+<!-- Destination 3 (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-container text-on-secondary-container dark:text-on-secondary rounded-full px-5 py-1 active:scale-90 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">insert_chart</span>
+<span class="font-label-sm text-label-sm font-semibold">Dashboard</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for bar hover and selection
+        document.querySelectorAll('select').forEach(el => {
+            el.addEventListener('change', () => {
+                // Mock chart refresh animation
+                const bars = document.querySelectorAll('.chart-bar');
+                bars.forEach(bar => {
+                    const originalHeight = bar.style.height;
+                    bar.style.height = '0%';
+                    setTimeout(() => {
+                        bar.style.height = originalHeight;
+                    }, 50);
+                });
+            });
+        });
+    </script>
+
+
+
+
+</body></html>

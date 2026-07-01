@@ -1,0 +1,231 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>The Survey - Success</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#001945",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#001f2a",
+                        "tertiary": "#274451",
+                        "on-secondary-container": "#006e6e",
+                        "surface-variant": "#e1e3e4",
+                        "primary-fixed": "#d9e2ff",
+                        "surface": "#f8f9fa",
+                        "on-surface": "#191c1d",
+                        "secondary-container": "#90efef",
+                        "secondary-fixed-dim": "#76d6d5",
+                        "tertiary-container": "#3f5c69",
+                        "surface-container-low": "#f3f4f5",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#b0c6ff",
+                        "surface-tint": "#1d59c1",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#002020",
+                        "outline-variant": "#c3c6d5",
+                        "surface-container": "#edeeef",
+                        "inverse-surface": "#2e3132",
+                        "tertiary-fixed": "#c9e7f7",
+                        "inverse-primary": "#b0c6ff",
+                        "secondary": "#006a6a",
+                        "primary": "#003c90",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-dim": "#d9dadb",
+                        "on-tertiary-fixed-variant": "#2e4b57",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#004f4f",
+                        "on-primary-fixed-variant": "#00419c",
+                        "on-primary-container": "#bcceff",
+                        "on-background": "#191c1d",
+                        "surface-container-highest": "#e1e3e4",
+                        "inverse-on-surface": "#f0f1f2",
+                        "background": "#f8f9fa",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#adcbda",
+                        "on-error": "#ffffff",
+                        "outline": "#737784",
+                        "on-surface-variant": "#434653",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#0f52ba",
+                        "surface-bright": "#f8f9fa",
+                        "secondary-fixed": "#93f2f2",
+                        "on-tertiary-container": "#b5d3e3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "margin-desktop": "40px",
+                        "sm": "12px",
+                        "lg": "48px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "md": "24px",
+                        "max-width-content": "1200px",
+                        "xl": "80px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .success-checkmark {
+            animation: checkmark-bounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes checkmark-bounce {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-on-surface overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-container-lowest flex justify-between items-center w-full px-md h-[64px] border-b border-outline-variant dark:border-outline fixed top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container cursor-pointer transition-transform hover:scale-105 active:scale-95 duration-150">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate administrator, high-quality studio lighting, neutral background, dressed in a sharp navy blazer, presenting a sense of authority and approachability. The image style is clean and modern, fitting a high-end corporate survey application dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3SYoVaI-aNNnSxjQupShYATEcfMWu1xF18cgNY4PGZJ0jzF2ZupQBQJgwuO5lOYQPm1Me-y0nU3UKH-30wVT0sERVBZQT3GjCj5y4m9lJJZDPxgqlWfEc0pmiiZctnXm-DOW_jmpy2uAcw2pxNP17DFm_PDMTHtmBWnSvWFUdFRTt1cKl2Xc7W5v0Mm07f2eO5TYFtcaoIrQDGK99auMJj_HTJTwNdHgSAcPB-1Q7oCJOO7GXEZZTpIrgOXSz7xHZaeGf-iDyd0o">
+</div>
+<span class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">The Survey</span>
+</div>
+<div class="flex items-center gap-4">
+
+</div>
+</header>
+<!-- Progress Indicator (Style Guidance) -->
+
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center justify-center pt-[68px] pb-[80px] px-margin-mobile md:px-margin-desktop">
+<div class="max-w-[720px] w-full text-center space-y-lg py-xl relative">
+<!-- Confetti Container -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden" id="confetti-anchor"><div class="confetti" style="left: 25.666559%; top: 80.902889%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.321731);"></div><div class="confetti" style="left: 93.198716%; top: 52.309381%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.847829);"></div><div class="confetti" style="left: 23.785685%; top: 27.544904%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.415035);"></div><div class="confetti" style="left: 65.85396%; top: 93.316854%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.786432);"></div><div class="confetti" style="left: 94.03063%; top: 4.2604%; background-color: rgb(0, 106, 106); opacity: 0; transform: scale(0.610235);"></div><div class="confetti" style="left: 39.817536%; top: 79.962512%; background-color: rgb(0, 60, 144); opacity: 0; transform: scale(0.642328);"></div><div class="confetti" style="left: 10.478516%; top: 45.563401%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.45961);"></div><div class="confetti" style="left: 16.163679%; top: 16.119225%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.063512);"></div><div class="confetti" style="left: 97.318874%; top: 53.028582%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.92078);"></div><div class="confetti" style="left: 85.385889%; top: 92.096339%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.497624);"></div><div class="confetti" style="left: 69.563999%; top: 71.219923%; background-color: rgb(0, 106, 106); opacity: 0; transform: scale(0.664679);"></div><div class="confetti" style="left: 6.304046%; top: 2.463781%; background-color: rgb(0, 106, 106); opacity: 0; transform: scale(0.033781);"></div><div class="confetti" style="left: 73.795636%; top: 46.560844%; background-color: rgb(0, 106, 106); opacity: 0; transform: scale(0.637506);"></div><div class="confetti" style="left: 6.207566%; top: 23.813785%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.383993);"></div><div class="confetti" style="left: 68.691542%; top: 58.629502%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.853266);"></div><div class="confetti" style="left: 98.352356%; top: 50.889017%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.56514);"></div><div class="confetti" style="left: 40.172175%; top: 95.971007%; background-color: rgb(0, 60, 144); opacity: 0; transform: scale(0.957485);"></div><div class="confetti" style="left: 26.37006%; top: 38.907101%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.395083);"></div><div class="confetti" style="left: 36.432071%; top: 85.450846%; background-color: rgb(0, 60, 144); opacity: 0; transform: scale(0.048421);"></div><div class="confetti" style="left: 75.92266%; top: 6.414245%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.807201);"></div><div class="confetti" style="left: 9.22604%; top: 37.192225%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.221523);"></div><div class="confetti" style="left: 0.102957%; top: 21.886973%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.056697);"></div><div class="confetti" style="left: 53.944678%; top: 20.005913%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.535998);"></div><div class="confetti" style="left: 43.892792%; top: 56.102367%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.75379);"></div><div class="confetti" style="left: 40.88263%; top: 11.108307%; background-color: rgb(0, 106, 106); opacity: 0; transform: scale(0.73871);"></div><div class="confetti" style="left: 88.576539%; top: 78.007902%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.589072);"></div><div class="confetti" style="left: 9.183335%; top: 22.71619%; background-color: rgb(0, 106, 106); opacity: 0; transform: scale(0.276045);"></div><div class="confetti" style="left: 88.170743%; top: 1.428811%; background-color: rgb(0, 106, 106); opacity: 0; transform: scale(0.475723);"></div><div class="confetti" style="left: 6.27737%; top: 24.387883%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.101439);"></div><div class="confetti" style="left: 43.606193%; top: 89.523672%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.809275);"></div><div class="confetti" style="left: 66.061122%; top: 82.081767%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.188597);"></div><div class="confetti" style="left: 24.876108%; top: 73.903563%; background-color: rgb(0, 60, 144); opacity: 0; transform: scale(0.470774);"></div><div class="confetti" style="left: 13.61513%; top: 46.75878%; background-color: rgb(0, 60, 144); opacity: 0; transform: scale(0.746719);"></div><div class="confetti" style="left: 76.465739%; top: 0.764714%; background-color: rgb(0, 106, 106); opacity: 0; transform: scale(0.057574);"></div><div class="confetti" style="left: 45.603255%; top: 90.10836%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.661507);"></div><div class="confetti" style="left: 16.900723%; top: 66.304928%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.741429);"></div><div class="confetti" style="left: 69.855238%; top: 0.758804%; background-color: rgb(0, 60, 144); opacity: 0; transform: scale(0.18262);"></div><div class="confetti" style="left: 72.887051%; top: 24.69682%; background-color: rgb(144, 239, 239); opacity: 0; transform: scale(0.734286);"></div><div class="confetti" style="left: 49.472109%; top: 50.542147%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.638499);"></div><div class="confetti" style="left: 9.981314%; top: 16.288214%; background-color: rgb(63, 92, 105); opacity: 0; transform: scale(0.283414);"></div></div>
+<!-- Success Illustration/Icon -->
+<div class="flex flex-col items-center">
+<div class="w-32 h-32 md:w-40 md:h-40 bg-secondary-container rounded-full flex items-center justify-center success-checkmark shadow-sm">
+<span class="material-symbols-outlined text-[64px] md:text-[80px] text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">
+                        check_circle
+                    </span>
+</div>
+</div>
+<!-- Typography Content -->
+<div class="space-y-md">
+<h1 class="font-display-lg text-display-lg text-primary">Thank You!</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[540px] mx-auto">
+                    Your survey responses have been successfully submitted. We appreciate your feedback!
+                </p>
+</div>
+<!-- Primary Action -->
+<div class="pt-md">
+<button class="bg-primary-container text-on-primary text-label-md font-label-md px-lg h-[48px] rounded-lg shadow-md hover:bg-primary transition-all active:scale-95 duration-150 inline-flex items-center gap-2 min-w-[200px] justify-center">
+<span class="material-symbols-outlined">dashboard</span>
+                    Back to Dashboard
+                </button>
+</div>
+<!-- Subtle Card for Additional Context -->
+
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container dark:bg-surface-container-low fixed bottom-0 w-full flex justify-around items-center px-4 py-2 border-t border-outline-variant dark:border-outline z-50">
+<!-- Destination: Questions -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant dark:hover:bg-inverse-surface transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<span class="font-label-sm text-[11px] mt-1">Questions</span>
+</a>
+<!-- Destination: Start Survey (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-container text-on-secondary-container dark:text-on-secondary rounded-full px-5 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<span class="font-label-sm text-[11px] mt-1">Start Survey</span>
+</a>
+<!-- Destination: Dashboard -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant dark:hover:bg-inverse-surface transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">insert_chart</span>
+<span class="font-label-sm text-[11px] mt-1">Dashboard</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for confetti effect on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('confetti-anchor');
+            const colors = ['#006a6a', '#003c90', '#90efef', '#3f5c69'];
+            
+            for (let i = 0; i < 40; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.opacity = '0';
+                confetti.style.transform = `scale(${Math.random()})`;
+                
+                container.appendChild(confetti);
+                
+                // Animation
+                confetti.animate([
+                    { transform: `translate(0, 0) rotate(0deg) scale(0)`, opacity: 0 },
+                    { opacity: 0.8, offset: 0.1 },
+                    { transform: `translate(${(Math.random() - 0.5) * 400}px, ${(Math.random() - 0.5) * 400}px) rotate(${Math.random() * 360}deg) scale(1)`, opacity: 0 }
+                ], {
+                    duration: 2000 + Math.random() * 1000,
+                    easing: 'cubic-bezier(0, .9, .57, 1)',
+                    delay: Math.random() * 200
+                });
+            }
+        });
+
+        // Hover sounds or additional micro-interactions could go here
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                // Tactical feedback logic
+            });
+        });
+    </script>
+
+
+</body></html>

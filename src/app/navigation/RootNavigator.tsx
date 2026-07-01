@@ -7,11 +7,9 @@ import {
 } from '@react-navigation/native';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 
-import { useAuthStore } from '../../features/auth';
 import { logger } from '../../shared/logging/logger';
 import type { AppColors } from '../../shared/theme/colors';
 import { useTheme } from '../../shared/theme/ThemeProvider';
-import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
 import { navigationPersistence } from './navigationPersistence';
 
@@ -29,35 +27,16 @@ export default function RootNavigator() {
   const { colors, resolvedScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const navigationTheme = resolvedScheme === 'dark' ? DarkTheme : DefaultTheme;
-  const { token, isLoading, init } = useAuthStore();
   const [initialNavigationState, setInitialNavigationState] = useState<InitialState>();
   const [isNavigationRestored, setIsNavigationRestored] = useState(false);
-
-  useEffect(() => {
-    init();
-  }, [init]);
 
   useEffect(() => {
     let isMounted = true;
 
     async function restoreNavigationState() {
-      if (isLoading) {
-        return;
-      }
-
       setIsNavigationRestored(false);
 
       try {
-        if (!token) {
-          await navigationPersistence.clearState();
-
-          if (isMounted) {
-            setInitialNavigationState(undefined);
-          }
-
-          return;
-        }
-
         const savedState = await navigationPersistence.getState();
 
         if (isMounted) {
@@ -83,9 +62,9 @@ export default function RootNavigator() {
     return () => {
       isMounted = false;
     };
-  }, [isLoading, token]);
+  }, []);
 
-  if (isLoading || !isNavigationRestored) {
+  if (!isNavigationRestored) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
@@ -96,15 +75,14 @@ export default function RootNavigator() {
 
   return (
     <NavigationContainer
-      key={token ? 'main' : 'auth'}
       theme={navigationTheme}
-      initialState={token ? initialNavigationState : undefined}
+      initialState={initialNavigationState}
       onStateChange={(state) => {
         if (state) {
           logger.debug('Current screen:', getActiveRouteName(state));
         }
 
-        if (token && state) {
+        if (state) {
           navigationPersistence.setState(state).catch((error) => {
             if (__DEV__) {
               console.warn('Failed to persist navigation state.', error);
@@ -113,7 +91,7 @@ export default function RootNavigator() {
         }
       }}
     >
-      {token ? <MainNavigator /> : <AuthNavigator />}
+      <MainNavigator />
     </NavigationContainer>
   );
 }
