@@ -159,12 +159,12 @@ export default function CreateQuestionScreen({ navigation, route }: CreateQuesti
         </Pressable>
         <Pressable
           disabled={!canSubmit}
-          onPress={() => {
+          onPress={async () => {
             if (!canSubmit) {
               return;
             }
 
-            submit();
+            await submit();
             navigation.goBack();
           }}
           style={[styles.primaryAction, !canSubmit ? styles.primaryActionDisabled : null]}

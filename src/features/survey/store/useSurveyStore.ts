@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 
-import { dailySurveyActivity, initialSurveyQuestions } from '../services/surveySeed';
+import { createCurrentMonthActivity, initialSurveyQuestions } from '../services/surveySeed';
+import { surveyRepository } from '../services/surveyRepository';
 import type {
+  ActivityPeriod,
   DashboardActivityPoint,
   ParticipantAgeRange,
   ParticipantBiodata,
@@ -15,11 +17,18 @@ type SessionStage = 'biodata' | 'in-progress' | 'completed';
 
 type SurveyStore = {
   activity: DashboardActivityPoint[];
+  activityPeriod: ActivityPeriod;
+  availableActivityYears: number[];
   questions: SurveyQuestion[];
   participant: ParticipantBiodata;
   answers: Record<string, string[]>;
   activeQuestionIndex: number;
   sessionStage: SessionStage;
+  isLoading: boolean;
+  isSubmittingSurvey: boolean;
+  initialize: () => Promise<void>;
+  refreshSurveyData: () => Promise<void>;
+  setActivityPeriod: (period: ActivityPeriod) => Promise<void>;
   setGender: (gender: ParticipantGender) => void;
   setAgeRange: (ageRange: ParticipantAgeRange) => void;
   startSurvey: () => void;
@@ -29,21 +38,17 @@ type SurveyStore = {
   previousQuestion: () => void;
   nextQuestion: () => void;
   completeSurvey: () => void;
-  toggleQuestionStatus: (questionId: string) => void;
-  deleteQuestion: (questionId: string) => void;
-  moveQuestion: (questionId: string, direction: QuestionMoveDirection) => void;
-  saveQuestion: (questionId: string | undefined, values: QuestionFormValues) => string;
+  submitSurveySession: () => Promise<void>;
+  clearAllResponses: () => Promise<void>;
+  toggleQuestionStatus: (questionId: string) => Promise<void>;
+  deleteQuestion: (questionId: string) => Promise<void>;
+  deleteAllQuestions: () => Promise<void>;
+  moveQuestion: (questionId: string, direction: QuestionMoveDirection) => Promise<void>;
+  saveQuestion: (questionId: string | undefined, values: QuestionFormValues) => Promise<string>;
 };
 
 function sortQuestions(questions: SurveyQuestion[]) {
   return [...questions].sort((left, right) => left.order - right.order);
-}
-
-function reindexQuestions(questions: SurveyQuestion[]) {
-  return questions.map((question, index) => ({
-    ...question,
-    order: index + 1,
-  }));
 }
 
 function getActiveQuestions(questions: SurveyQuestion[]) {
@@ -70,21 +75,80 @@ function createQuestionId(questions: SurveyQuestion[]) {
   return `Q-${highestId + 1}`;
 }
 
-function mapOptionLabels(questionId: string, options: string[]) {
-  return options.map((optionLabel, index) => ({
-    id: `${questionId}-${index + 1}`,
-    label: optionLabel,
-    responseCount: 0,
-  }));
-}
-
-export const useSurveyStore = create<SurveyStore>((set) => ({
-  activity: dailySurveyActivity,
-  questions: initialSurveyQuestions,
+export const useSurveyStore = create<SurveyStore>((set, get) => ({
+  activity: createCurrentMonthActivity(),
+  activityPeriod: {
+    month: new Date().getMonth(),
+    year: new Date().getFullYear(),
+  },
+  availableActivityYears: [new Date().getFullYear()],
+  questions: [],
   participant: {},
   answers: {},
   activeQuestionIndex: 0,
   sessionStage: 'biodata',
+  isLoading: true,
+  isSubmittingSurvey: false,
+
+  initialize: async () => {
+    set({ isLoading: true });
+
+    try {
+      await surveyRepository.initialize();
+      const activityPeriod = get().activityPeriod;
+      const [questions, activity] = await Promise.all([
+        surveyRepository.getQuestions(),
+        surveyRepository.getActivity(activityPeriod),
+      ]);
+      const availableActivityYears = await surveyRepository.getAvailableActivityYears();
+
+      set((state) => ({
+        questions,
+        activity,
+        availableActivityYears,
+        activeQuestionIndex: clampQuestionIndex(questions, state.activeQuestionIndex),
+        isLoading: false,
+      }));
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('Failed to initialize survey storage.', error);
+      }
+
+      set({
+        questions: initialSurveyQuestions,
+        activity: createCurrentMonthActivity(),
+        availableActivityYears: [new Date().getFullYear()],
+        isLoading: false,
+      });
+    }
+  },
+
+  refreshSurveyData: async () => {
+    const activityPeriod = get().activityPeriod;
+    const [questions, activity] = await Promise.all([
+      surveyRepository.getQuestions(),
+      surveyRepository.getActivity(activityPeriod),
+    ]);
+    const availableActivityYears = await surveyRepository.getAvailableActivityYears();
+
+    set((state) => ({
+      questions,
+      activity,
+      availableActivityYears,
+      activeQuestionIndex: clampQuestionIndex(questions, state.activeQuestionIndex),
+    }));
+  },
+
+  setActivityPeriod: async (period) => {
+    const activity = await surveyRepository.getActivity(period);
+    const availableActivityYears = await surveyRepository.getAvailableActivityYears();
+
+    set({
+      activity,
+      activityPeriod: period,
+      availableActivityYears,
+    });
+  },
 
   setGender: (gender) => {
     set((state) => ({ participant: { ...state.participant, gender } }));
@@ -108,6 +172,7 @@ export const useSurveyStore = create<SurveyStore>((set) => ({
       answers: {},
       activeQuestionIndex: 0,
       sessionStage: 'biodata',
+      isSubmittingSurvey: false,
     });
   },
 
@@ -163,32 +228,92 @@ export const useSurveyStore = create<SurveyStore>((set) => ({
     set({ sessionStage: 'completed' });
   },
 
-  toggleQuestionStatus: (questionId) => {
-    set((state) => {
-      const questions = reindexQuestions(
-        state.questions.map((question) =>
-          question.id === questionId
-            ? {
-                ...question,
-                status: question.status === 'active' ? 'draft' : 'active',
-                updatedAt: 'Updated now',
-              }
-            : question,
-        ),
+  submitSurveySession: async () => {
+    const { participant, answers } = get();
+
+    if (!participant.gender || !participant.ageRange || Object.keys(answers).length === 0) {
+      return;
+    }
+
+    set({ isSubmittingSurvey: true });
+
+    try {
+      await surveyRepository.createSurveySubmission(
+        {
+          gender: participant.gender,
+          ageRange: participant.ageRange,
+        },
+        answers,
       );
 
-      return {
+      const activityPeriod = get().activityPeriod;
+      const [questions, activity] = await Promise.all([
+        surveyRepository.getQuestions(),
+        surveyRepository.getActivity(activityPeriod),
+      ]);
+      const availableActivityYears = await surveyRepository.getAvailableActivityYears();
+
+      set({
         questions,
-        activeQuestionIndex: clampQuestionIndex(questions, state.activeQuestionIndex),
-      };
-    });
+        activity,
+        availableActivityYears,
+        sessionStage: 'completed',
+        isSubmittingSurvey: false,
+      });
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('Failed to save survey submission.', error);
+      }
+
+      set({ isSubmittingSurvey: false });
+      throw error;
+    }
   },
 
-  deleteQuestion: (questionId) => {
+  clearAllResponses: async () => {
+    await surveyRepository.clearAllResponses();
+
+    const activityPeriod = get().activityPeriod;
+    const [questions, activity] = await Promise.all([
+      surveyRepository.getQuestions(),
+      surveyRepository.getActivity(activityPeriod),
+    ]);
+    const availableActivityYears = await surveyRepository.getAvailableActivityYears();
+
+    set((state) => ({
+      questions,
+      activity,
+      availableActivityYears,
+      answers: {},
+      participant: {},
+      sessionStage: 'biodata',
+      activeQuestionIndex: clampQuestionIndex(questions, state.activeQuestionIndex),
+      isSubmittingSurvey: false,
+    }));
+  },
+
+  toggleQuestionStatus: async (questionId) => {
+    const currentQuestion = get().questions.find((question) => question.id === questionId);
+
+    if (!currentQuestion) {
+      return;
+    }
+
+    const questions = await surveyRepository.setQuestionStatus(
+      questionId,
+      currentQuestion.status === 'active' ? 'draft' : 'active',
+    );
+
+    set((state) => ({
+      questions,
+      activeQuestionIndex: clampQuestionIndex(questions, state.activeQuestionIndex),
+    }));
+  },
+
+  deleteQuestion: async (questionId) => {
+    const questions = await surveyRepository.deleteQuestion(questionId);
+
     set((state) => {
-      const questions = reindexQuestions(
-        state.questions.filter((question) => question.id !== questionId),
-      );
       const remainingAnswers = Object.fromEntries(
         Object.entries(state.answers).filter(
           ([currentQuestionId]) => currentQuestionId !== questionId,
@@ -203,70 +328,66 @@ export const useSurveyStore = create<SurveyStore>((set) => ({
     });
   },
 
-  moveQuestion: (questionId, direction) => {
-    set((state) => {
-      const questions = sortQuestions(state.questions);
-      const questionIndex = questions.findIndex((question) => question.id === questionId);
+  deleteAllQuestions: async () => {
+    await surveyRepository.deleteAllQuestions();
 
-      if (questionIndex < 0) {
-        return state;
-      }
+    const activityPeriod = get().activityPeriod;
+    const [questions, activity] = await Promise.all([
+      surveyRepository.getQuestions(),
+      surveyRepository.getActivity(activityPeriod),
+    ]);
+    const availableActivityYears = await surveyRepository.getAvailableActivityYears();
 
-      const targetIndex = direction === 'up' ? questionIndex - 1 : questionIndex + 1;
-
-      if (targetIndex < 0 || targetIndex >= questions.length) {
-        return state;
-      }
-
-      const nextQuestions = [...questions];
-      const [question] = nextQuestions.splice(questionIndex, 1);
-      nextQuestions.splice(targetIndex, 0, question);
-
-      return {
-        questions: reindexQuestions(nextQuestions).map((currentQuestion) =>
-          currentQuestion.id === questionId
-            ? { ...currentQuestion, updatedAt: 'Reordered just now' }
-            : currentQuestion,
-        ),
-      };
+    set({
+      questions,
+      activity,
+      availableActivityYears,
+      answers: {},
+      activeQuestionIndex: 0,
+      sessionStage: 'biodata',
     });
   },
 
-  saveQuestion: (questionId, values) => {
-    let savedQuestionId = questionId ?? '';
+  moveQuestion: async (questionId, direction) => {
+    const questions = sortQuestions(get().questions);
+    const questionIndex = questions.findIndex((question) => question.id === questionId);
 
-    set((state) => {
-      const normalizedOptions = values.options.map((option) => option.trim()).filter(Boolean);
-      const safeOptions =
-        normalizedOptions.length > 0 ? normalizedOptions : ['Option 1', 'Option 2'];
-      const nextQuestionId = questionId ?? createQuestionId(state.questions);
-      const nextQuestion: SurveyQuestion = {
-        id: nextQuestionId,
-        title: values.title.trim(),
-        helperText: values.helperText.trim(),
-        type: values.type,
-        status: values.status,
-        order:
-          state.questions.find((question) => question.id === nextQuestionId)?.order ??
-          state.questions.length + 1,
-        updatedAt: questionId ? 'Updated just now' : 'Created just now',
-        options: mapOptionLabels(nextQuestionId, safeOptions),
-      };
+    if (questionIndex < 0) {
+      return;
+    }
 
-      savedQuestionId = nextQuestionId;
+    const targetIndex = direction === 'up' ? questionIndex - 1 : questionIndex + 1;
 
-      const existingQuestion = state.questions.find((question) => question.id === nextQuestionId);
-      const questions = existingQuestion
-        ? state.questions.map((question) =>
-            question.id === nextQuestionId ? nextQuestion : question,
-          )
-        : [...state.questions, nextQuestion];
+    if (targetIndex < 0 || targetIndex >= questions.length) {
+      return;
+    }
 
-      return {
-        questions: reindexQuestions(questions),
-      };
-    });
+    const nextQuestions = [...questions];
+    const [question] = nextQuestions.splice(questionIndex, 1);
+    nextQuestions.splice(targetIndex, 0, question);
 
-    return savedQuestionId;
+    const persistedQuestions = await surveyRepository.reorderQuestions(
+      nextQuestions.map((currentQuestion) => currentQuestion.id),
+    );
+
+    set((state) => ({
+      questions: persistedQuestions,
+      activeQuestionIndex: clampQuestionIndex(persistedQuestions, state.activeQuestionIndex),
+    }));
+  },
+
+  saveQuestion: async (questionId, values) => {
+    const targetQuestionId = questionId ?? createQuestionId(get().questions);
+    const fallbackOrder =
+      get().questions.find((question) => question.id === targetQuestionId)?.order ??
+      get().questions.length + 1;
+    const questions = await surveyRepository.saveQuestion(targetQuestionId, values, fallbackOrder);
+
+    set((state) => ({
+      questions,
+      activeQuestionIndex: clampQuestionIndex(questions, state.activeQuestionIndex),
+    }));
+
+    return targetQuestionId;
   },
 }));

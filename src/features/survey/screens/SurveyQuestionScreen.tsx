@@ -23,7 +23,8 @@ export default function SurveyQuestionScreen({ navigation }: SurveyQuestionScree
   const previousQuestion = useSurveyStore((state) => state.previousQuestion);
   const setSingleAnswer = useSurveyStore((state) => state.setSingleAnswer);
   const toggleMultiAnswer = useSurveyStore((state) => state.toggleMultiAnswer);
-  const completeSurvey = useSurveyStore((state) => state.completeSurvey);
+  const isSubmittingSurvey = useSurveyStore((state) => state.isSubmittingSurvey);
+  const submitSurveySession = useSurveyStore((state) => state.submitSurveySession);
 
   const activeQuestions = useMemo(
     () =>
@@ -34,7 +35,7 @@ export default function SurveyQuestionScreen({ navigation }: SurveyQuestionScree
   );
   const currentQuestion = activeQuestions[activeQuestionIndex];
   const currentAnswers = currentQuestion ? answers[currentQuestion.id] ?? [] : [];
-  const canContinue = currentAnswers.length > 0;
+  const canContinue = currentAnswers.length > 0 && !isSubmittingSurvey;
   const progress = activeQuestions.length
     ? Math.round(((activeQuestionIndex + 1) / activeQuestions.length) * 100)
     : 0;
@@ -131,13 +132,13 @@ export default function SurveyQuestionScreen({ navigation }: SurveyQuestionScree
 
           <Pressable
             disabled={!canContinue}
-            onPress={() => {
+            onPress={async () => {
               if (!canContinue) {
                 return;
               }
 
               if (isLastQuestion) {
-                completeSurvey();
+                await submitSurveySession();
                 navigation.navigate('SurveyCompleted');
                 return;
               }
@@ -147,7 +148,11 @@ export default function SurveyQuestionScreen({ navigation }: SurveyQuestionScree
             style={[styles.primaryAction, !canContinue ? styles.primaryActionDisabled : null]}
           >
             <Text style={styles.primaryActionText}>
-              {isLastQuestion ? 'Finish Survey' : 'Next Question'}
+              {isLastQuestion
+                ? isSubmittingSurvey
+                  ? 'Saving...'
+                  : 'Finish Survey'
+                : 'Next Question'}
             </Text>
             <ArrowRight color={colors.onPrimary} size={18} strokeWidth={2.3} />
           </Pressable>

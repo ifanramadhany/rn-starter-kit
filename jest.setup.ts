@@ -43,3 +43,5 @@ jest.mock('react-native-keychain', () => {
     }),
   };
 });
+
+jest.mock('./src/features/survey/services/surveyRepository');

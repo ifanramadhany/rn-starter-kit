@@ -7,6 +7,7 @@ import { useResponsiveLayout } from '../../../shared/hooks/useResponsiveLayout';
 import type { QuestionsStackParamList } from '../../../shared/navigation/routes';
 import { useTheme } from '../../../shared/theme/ThemeProvider';
 import MetricCard from '../components/MetricCard';
+import ConfirmationModal from '../components/ConfirmationModal';
 import QuestionListItem from '../components/QuestionListItem';
 import SurveyScaffold from '../components/SurveyScaffold';
 import SurveySurfaceCard from '../components/SurveySurfaceCard';
@@ -25,9 +26,12 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
   const styles = useMemo(() => createStyles(colors, isTablet), [colors, isTablet]);
   const questions = useSurveyStore((state) => state.questions);
   const deleteQuestion = useSurveyStore((state) => state.deleteQuestion);
+  const deleteAllQuestions = useSurveyStore((state) => state.deleteAllQuestions);
   const toggleQuestionStatus = useSurveyStore((state) => state.toggleQuestionStatus);
   const metrics = useSurveyMetrics();
   const [searchValue, setSearchValue] = useState('');
+  const [isDeleteAllModalVisible, setIsDeleteAllModalVisible] = useState(false);
+  const [isDeletingAllQuestions, setIsDeletingAllQuestions] = useState(false);
 
   const filteredQuestions = useMemo(() => {
     const normalizedQuery = searchValue.trim().toLowerCase();
@@ -61,6 +65,17 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
       </Pressable>
     </View>
   );
+
+  async function handleDeleteAllQuestions() {
+    setIsDeletingAllQuestions(true);
+
+    try {
+      await deleteAllQuestions();
+      setIsDeleteAllModalVisible(false);
+    } finally {
+      setIsDeletingAllQuestions(false);
+    }
+  }
 
   return (
     <SurveyScaffold
@@ -109,6 +124,18 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
             <Text style={styles.filterChipText}>Live + Draft Mix</Text>
           </View>
         </View>
+        <View style={styles.dangerRow}>
+          <Pressable
+            disabled={isDeletingAllQuestions}
+            onPress={() => setIsDeleteAllModalVisible(true)}
+            style={[
+              styles.dangerAction,
+              isDeletingAllQuestions ? styles.dangerActionDisabled : null,
+            ]}
+          >
+            <Text style={styles.dangerActionText}>Remove All Questions</Text>
+          </Pressable>
+        </View>
       </SurveySurfaceCard>
 
       <View style={styles.list}>
@@ -117,13 +144,17 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
             <QuestionListItem
               key={question.id}
               question={question}
-              onDelete={() => deleteQuestion(question.id)}
+              onDelete={async () => {
+                await deleteQuestion(question.id);
+              }}
               onEdit={() =>
                 navigation.navigate('CreateQuestion', {
                   questionId: question.id,
                 })
               }
-              onToggleStatus={() => toggleQuestionStatus(question.id)}
+              onToggleStatus={async () => {
+                await toggleQuestionStatus(question.id);
+              }}
             />
           ))
         ) : (
@@ -135,6 +166,16 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
           </View>
         )}
       </View>
+
+      <ConfirmationModal
+        visible={isDeleteAllModalVisible}
+        title="Remove All Questions"
+        description="This will permanently delete every survey question on this device, including all option sets. Existing response history will remain, but there will be no survey questions left to run until you add new ones."
+        confirmLabel="Remove Questions"
+        isSubmitting={isDeletingAllQuestions}
+        onCancel={() => setIsDeleteAllModalVisible(false)}
+        onConfirm={handleDeleteAllQuestions}
+      />
     </SurveyScaffold>
   );
 }

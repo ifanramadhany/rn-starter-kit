@@ -7,6 +7,7 @@ import {
 } from '@react-navigation/native';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 
+import { useSurveyStore } from '../../features/survey';
 import { logger } from '../../shared/logging/logger';
 import type { AppColors } from '../../shared/theme/colors';
 import { useTheme } from '../../shared/theme/ThemeProvider';
@@ -29,6 +30,12 @@ export default function RootNavigator() {
   const navigationTheme = resolvedScheme === 'dark' ? DarkTheme : DefaultTheme;
   const [initialNavigationState, setInitialNavigationState] = useState<InitialState>();
   const [isNavigationRestored, setIsNavigationRestored] = useState(false);
+  const initializeSurveyStore = useSurveyStore((state) => state.initialize);
+  const isSurveyLoading = useSurveyStore((state) => state.isLoading);
+
+  useEffect(() => {
+    initializeSurveyStore();
+  }, [initializeSurveyStore]);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,7 +71,7 @@ export default function RootNavigator() {
     };
   }, []);
 
-  if (!isNavigationRestored) {
+  if (!isNavigationRestored || isSurveyLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />

@@ -83,6 +83,28 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       fontSize: 13,
       fontWeight: '600',
     },
+    dangerRow: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+    },
+    dangerAction: {
+      minHeight: 44,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.dangerAction,
+      backgroundColor: colors.dangerBackground,
+      paddingHorizontal: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    dangerActionDisabled: {
+      opacity: 0.7,
+    },
+    dangerActionText: {
+      color: colors.dangerAction,
+      fontSize: 13,
+      fontWeight: '800',
+    },
     filterChip: {
       borderRadius: 999,
       paddingHorizontal: 12,

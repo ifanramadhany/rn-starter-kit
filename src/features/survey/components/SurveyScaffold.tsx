@@ -42,8 +42,8 @@ export default function SurveyScaffold({
             <Text style={styles.brandMarkText}>DS</Text>
           </View>
           <View>
-            <Text style={styles.brandTitle}>Dynamic Survey Hub</Text>
-            <Text style={styles.brandSubtitle}>Tablet workspace</Text>
+            <Text style={styles.brandTitle}>DS Hub</Text>
+            <Text style={styles.brandSubtitle}>Dynamic Survey Hub</Text>
           </View>
         </View>
       </View>

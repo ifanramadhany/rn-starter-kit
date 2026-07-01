@@ -26,10 +26,24 @@ export type ParticipantBiodata = {
   ageRange?: ParticipantAgeRange;
 };
 
+export type RespondentGender = ParticipantGender | 'unknown';
+export type RespondentAgeRange = ParticipantAgeRange | 'unknown';
+
+export type SurveyRespondentDetail = {
+  id: string;
+  gender: RespondentGender;
+  ageRange: RespondentAgeRange;
+};
+
 export type DashboardActivityPoint = {
   label: string;
   completions: number;
   highlighted?: boolean;
+};
+
+export type ActivityPeriod = {
+  month: number;
+  year: number;
 };
 
 export type QuestionFormValues = {

@@ -4,7 +4,6 @@ import { useSurveyStore } from '../store/useSurveyStore';
 
 export function useSurveyMetrics() {
   const questions = useSurveyStore((state) => state.questions);
-  const activity = useSurveyStore((state) => state.activity);
 
   return useMemo(() => {
     const activeQuestions = questions
@@ -17,10 +16,6 @@ export function useSurveyMetrics() {
         question.options.reduce((optionCount, option) => optionCount + option.responseCount, 0),
       0,
     );
-    const peakDay = activity.reduce(
-      (peak, day) => (day.completions > peak.completions ? day : peak),
-      activity[0],
-    );
 
     return {
       totalQuestions: questions.length,
@@ -29,8 +24,7 @@ export function useSurveyMetrics() {
       responseCount: totalResponses,
       completionRate:
         questions.length === 0 ? 0 : Math.round((activeQuestions.length / questions.length) * 100),
-      peakDay,
       activeQuestionList: activeQuestions,
     };
-  }, [activity, questions]);
+  }, [questions]);
 }

@@ -63,7 +63,9 @@ export default function QuestionReorderScreen({ navigation }: QuestionReorderScr
               <View style={styles.itemActions}>
                 <Pressable
                   disabled={isFirst}
-                  onPress={() => moveQuestion(question.id, 'up')}
+                  onPress={async () => {
+                    await moveQuestion(question.id, 'up');
+                  }}
                   style={[styles.moveButton, isFirst ? styles.moveButtonDisabled : null]}
                 >
                   <ArrowUp
@@ -74,7 +76,9 @@ export default function QuestionReorderScreen({ navigation }: QuestionReorderScr
                 </Pressable>
                 <Pressable
                   disabled={isLast}
-                  onPress={() => moveQuestion(question.id, 'down')}
+                  onPress={async () => {
+                    await moveQuestion(question.id, 'down');
+                  }}
                   style={[styles.moveButton, isLast ? styles.moveButtonDisabled : null]}
                 >
                   <ArrowDown
