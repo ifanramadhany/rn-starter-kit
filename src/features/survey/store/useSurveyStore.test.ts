@@ -85,4 +85,27 @@ describe('useSurveyStore question ordering', () => {
     );
     expect(reorderedQuestions[0]?.updatedAt).toBe('Diperbarui hari ini');
   });
+
+  test('submitSurveySession clears participant biodata after a successful finish', async () => {
+    const firstQuestion = initialSurveyQuestions[0];
+    const firstOptionId = firstQuestion?.options[0]?.id;
+
+    useSurveyStore.setState({
+      participant: {
+        gender: 'female',
+        ageRange: '36-55',
+      },
+      answers: firstQuestion && firstOptionId ? { [firstQuestion.id]: [firstOptionId] } : {},
+      sessionStage: 'in-progress',
+      isSubmittingSurvey: false,
+    });
+
+    await useSurveyStore.getState().submitSurveySession();
+
+    const state = useSurveyStore.getState();
+
+    expect(state.participant).toEqual({});
+    expect(state.sessionStage).toBe('completed');
+    expect(state.isSubmittingSurvey).toBe(false);
+  });
 });

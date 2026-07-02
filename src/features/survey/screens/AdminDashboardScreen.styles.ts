@@ -372,8 +372,8 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       gap: 5,
     },
     activitySummaryCardSelected: {
-      backgroundColor: colors.secondaryContainer,
-      borderColor: colors.secondary,
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primary,
     },
     activitySummaryDay: {
       color: colors.text,
@@ -381,7 +381,7 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       fontWeight: '800',
     },
     activitySummaryDaySelected: {
-      color: colors.onSecondaryContainer,
+      color: colors.accentText,
     },
     activitySummaryValue: {
       color: colors.textMuted,
@@ -390,7 +390,7 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       fontWeight: '600',
     },
     activitySummaryValueSelected: {
-      color: colors.onSecondaryContainer,
+      color: colors.accentText,
     },
     modalOverlay: {
       flex: 1,
@@ -523,78 +523,288 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       paddingBottom: 18,
       flexDirection: isTablet ? 'row' : 'column',
       justifyContent: 'space-between',
-      alignItems: isTablet ? 'center' : 'flex-start',
+      alignItems: isTablet ? 'flex-start' : 'flex-start',
       gap: 12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       backgroundColor: colors.surface,
     },
-    tableColumns: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 24,
-      paddingVertical: 14,
-      backgroundColor: colors.surfaceMuted,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+    tableHeaderContent: {
+      flex: 1,
+      gap: 4,
     },
-    tableColumnLabel: {
-      color: colors.text,
-      fontSize: 12,
-      fontWeight: '700',
-      letterSpacing: 1,
+    resultsSummaryRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+    },
+    resultsSummaryPill: {
+      minWidth: isTablet ? 132 : 120,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceMuted,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      gap: 4,
+    },
+    resultsSummaryPillAccent: {
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primary,
+    },
+    resultsSummaryLabel: {
+      color: colors.textSubtle,
+      fontSize: 11,
+      fontWeight: '800',
+      letterSpacing: 0.9,
       textTransform: 'uppercase',
     },
-    tableQuestionColumn: {
-      flex: isTablet ? 1.05 : 1,
-      paddingRight: 18,
+    resultsSummaryValue: {
+      color: colors.text,
+      fontSize: 20,
+      lineHeight: 24,
+      fontWeight: '800',
     },
-    tableAnswerColumn: {
-      flex: isTablet ? 1.6 : 1,
+    resultsList: {
+      gap: 12,
+      paddingHorizontal: 20,
+      paddingVertical: 20,
+      backgroundColor: colors.surfaceMuted,
     },
-    tableRow: {
-      flexDirection: isTablet ? 'row' : 'column',
-      gap: 16,
-      paddingHorizontal: 24,
-      paddingVertical: 18,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+    resultCard: {
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      overflow: 'hidden',
+    },
+    resultCardExpanded: {
+      borderColor: colors.primary,
       backgroundColor: colors.surface,
     },
-    tableQuestion: {
-      color: colors.text,
-      fontSize: 17,
-      lineHeight: 24,
-      fontWeight: '700',
+    resultCardButton: {
+      gap: 14,
+      paddingHorizontal: 16,
+      paddingVertical: 16,
     },
-    tableMeta: {
-      color: colors.textSubtle,
-      fontSize: 13,
-      lineHeight: 18,
-      marginTop: 6,
-      fontWeight: '600',
+    resultHeaderMain: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 12,
     },
-    chipRow: {
+    resultQuestionBadge: {
+      minWidth: 48,
+      minHeight: 30,
+      borderRadius: 12,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    resultQuestionBadgeText: {
+      color: colors.onPrimary,
+      fontSize: 12,
+      fontWeight: '800',
+      letterSpacing: 0.8,
+    },
+    resultQuestionContent: {
+      flex: 1,
+      gap: 8,
+    },
+    resultHeaderTopRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: 12,
+    },
+    resultMetaRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 8,
     },
-    chip: {
+    resultMetaPill: {
+      minHeight: 28,
       borderRadius: 999,
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primarySoft,
     },
-    chipStrong: {
-      backgroundColor: colors.secondaryContainer,
+    resultMetaPillMuted: {
+      backgroundColor: colors.surfaceMuted,
     },
-    chipText: {
-      color: colors.textMuted,
+    resultMetaPillText: {
+      color: colors.primary,
       fontSize: 12,
       fontWeight: '700',
     },
-    chipStrongText: {
-      color: colors.onSecondaryContainer,
+    resultMetaPillTextMuted: {
+      color: colors.textMuted,
+    },
+    resultHelperText: {
+      color: colors.textMuted,
+      fontSize: 13,
+      lineHeight: 18,
+      fontWeight: '600',
+    },
+    resultToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingTop: 2,
+    },
+    resultToggleExpanded: {
+      opacity: 1,
+    },
+    resultToggleText: {
+      color: colors.textSubtle,
+      fontSize: 11,
+      fontWeight: '800',
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+    },
+    resultToggleTextExpanded: {
+      color: colors.primary,
+    },
+    resultToggleIconWrap: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: 1,
+    },
+    resultSummaryRowCompact: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    resultSummaryPillCompact: {
+      flex: 1,
+      minWidth: isTablet ? 180 : 150,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceMuted,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      gap: 3,
+    },
+    resultSummaryPillCompactAccent: {
+      backgroundColor: colors.successBackground,
+      borderColor: colors.successText,
+    },
+    resultSummaryPillLabel: {
+      color: colors.textSubtle,
+      fontSize: 10,
+      fontWeight: '800',
+      letterSpacing: 0.7,
+      textTransform: 'uppercase',
+    },
+    resultSummaryPillLabelAccent: {
+      color: colors.successText,
+    },
+    resultSummaryPillValue: {
+      color: colors.text,
+      fontSize: 13,
+      lineHeight: 18,
+      fontWeight: '600',
+    },
+    resultSummaryPillValueAccent: {
+      color: colors.successText,
+    },
+    tableQuestion: {
+      color: colors.text,
+      fontSize: 16,
+      lineHeight: 22,
+      fontWeight: '800',
+    },
+    tableMeta: {
+      color: colors.textSubtle,
+      fontSize: 12,
+      lineHeight: 17,
+      fontWeight: '600',
+    },
+    resultExpandedWrap: {
+      overflow: 'hidden',
+    },
+    resultExpandedSection: {
+      gap: 12,
+      paddingHorizontal: 16,
+      paddingTop: 14,
+      paddingBottom: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      backgroundColor: colors.surfaceMuted,
+    },
+    resultOptionsList: {
+      gap: 8,
+    },
+    resultOptionCard: {
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      gap: 8,
+    },
+    resultOptionCardTop: {
+      backgroundColor: colors.successBackground,
+      borderColor: colors.successText,
+    },
+    resultOptionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+    },
+    resultOptionLabel: {
+      flex: 1,
+      color: colors.text,
+      fontSize: 14,
+      lineHeight: 20,
+      fontWeight: '700',
+    },
+    resultOptionLabelTop: {
+      color: colors.successText,
+    },
+    resultOptionCountWrap: {
+      alignItems: 'flex-end',
+      gap: 2,
+    },
+    resultOptionCount: {
+      color: colors.text,
+      fontSize: 16,
+      lineHeight: 20,
+      fontWeight: '800',
+    },
+    resultOptionCountTop: {
+      color: colors.successText,
+    },
+    resultOptionPercent: {
+      color: colors.textMuted,
+      fontSize: 11,
+      fontWeight: '700',
+    },
+    resultOptionPercentTop: {
+      color: colors.successText,
+    },
+    resultOptionBarRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    resultOptionBarTrack: {
+      flex: 1,
+      height: 10,
+      borderRadius: 999,
+      backgroundColor: colors.surfaceStrong,
+      overflow: 'hidden',
+    },
+    resultOptionBarFill: {
+      height: '100%',
+      borderRadius: 999,
+      backgroundColor: colors.primary,
+    },
+    resultOptionBarFillTop: {
+      backgroundColor: colors.successText,
     },
     tableFooter: {
       flexDirection: 'row',
@@ -609,11 +819,14 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 6,
-      minHeight: 36,
+      minHeight: 42,
+      borderRadius: 14,
+      paddingHorizontal: 14,
+      backgroundColor: colors.primarySoft,
     },
     tableFooterText: {
       color: colors.primary,
-      fontSize: 13,
+      fontSize: 14,
       fontWeight: '700',
     },
   });

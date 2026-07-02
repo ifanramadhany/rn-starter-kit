@@ -1,5 +1,14 @@
-import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import {
@@ -13,6 +22,7 @@ import {
 
 import { useResponsiveLayout } from '../../../shared/hooks/useResponsiveLayout';
 import type { DashboardStackParamList, MainTabParamList } from '../../../shared/navigation/routes';
+import type { AppColors } from '../../../shared/theme/colors';
 import { useTheme } from '../../../shared/theme/ThemeProvider';
 import MetricCard from '../components/MetricCard';
 import SurveyScaffold from '../components/SurveyScaffold';
@@ -20,11 +30,20 @@ import SurveySurfaceCard from '../components/SurveySurfaceCard';
 import { useSurveyMetrics } from '../hooks/useSurveyMetrics';
 import { surveyRepository } from '../services/surveyRepository';
 import { useSurveyStore } from '../store/useSurveyStore';
-import type { SurveyRespondentDetail } from '../types';
+import type { SurveyQuestion, SurveyRespondentDetail } from '../types';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { createStyles } from './AdminDashboardScreen.styles';
 
 type AdminDashboardScreenProps = NativeStackScreenProps<DashboardStackParamList, 'AdminDashboard'>;
+type AdminDashboardScreenStyles = ReturnType<typeof createStyles>;
+type ResultAccordionItemProps = {
+  colors: AppColors;
+  isExpanded: boolean;
+  onToggle: () => void;
+  question: SurveyQuestion;
+  questionIndex: number;
+  styles: AdminDashboardScreenStyles;
+};
 
 const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' });
 const shortMonthFormatter = new Intl.DateTimeFormat('en-US', { month: 'short' });
@@ -51,6 +70,26 @@ function formatResponseLabel(completions: number) {
   return `${completions} ${completions === 1 ? 'response' : 'responses'}`;
 }
 
+function formatQuestionTypeLabel(type: SurveyQuestion['type']) {
+  return type === 'multiple' ? 'Multiple choice' : 'Single choice';
+}
+
+function formatSelectionCountLabel(selectionCount: number, type: SurveyQuestion['type']) {
+  if (type === 'multiple') {
+    return `${selectionCount} ${selectionCount === 1 ? 'choice' : 'choices'} logged`;
+  }
+
+  return `${selectionCount} ${selectionCount === 1 ? 'response' : 'responses'} logged`;
+}
+
+function formatPercentLabel(value: number, total: number) {
+  if (value <= 0 || total <= 0) {
+    return '0%';
+  }
+
+  return `${Math.round((value / total) * 100)}%`;
+}
+
 function formatGenderLabel(gender: SurveyRespondentDetail['gender']) {
   if (gender === 'male') {
     return 'Male';
@@ -75,6 +114,230 @@ function formatAgeRangeLabel(ageRange: SurveyRespondentDetail['ageRange']) {
   return 'Unknown';
 }
 
+function ResultAccordionItem({
+  colors,
+  isExpanded,
+  onToggle,
+  question,
+  questionIndex,
+  styles,
+}: ResultAccordionItemProps) {
+  const totalSelections = question.options.reduce(
+    (selectionCount, option) => selectionCount + option.responseCount,
+    0,
+  );
+  const highestResponseCount = question.options.reduce(
+    (highest, option) => Math.max(highest, option.responseCount),
+    0,
+  );
+  const leadingOption =
+    question.options.find((option) => option.responseCount === highestResponseCount) ?? null;
+  const [expandedContentHeight, setExpandedContentHeight] = useState(0);
+  const [expandAnimation] = useState(() => new Animated.Value(isExpanded ? 1 : 0));
+
+  useEffect(() => {
+    Animated.timing(expandAnimation, {
+      toValue: isExpanded ? 1 : 0,
+      duration: 260,
+      easing: Easing.bezier(0.22, 1, 0.36, 1),
+      useNativeDriver: false,
+    }).start();
+  }, [expandAnimation, isExpanded]);
+
+  const animatedContainerHeight = expandAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, Math.max(expandedContentHeight, 1)],
+  });
+  const animatedContentOpacity = expandAnimation.interpolate({
+    inputRange: [0, 0.45, 1],
+    outputRange: [0, 0.28, 1],
+  });
+  const animatedContentTranslateY = expandAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-8, 0],
+  });
+  const animatedChevronRotation = expandAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
+  return (
+    <View style={[styles.resultCard, isExpanded ? styles.resultCardExpanded : null]}>
+      <Pressable onPress={onToggle} style={styles.resultCardButton}>
+        <View style={styles.resultHeaderMain}>
+          <View style={styles.resultQuestionBadge}>
+            <Text style={styles.resultQuestionBadgeText}>
+              Q{String(questionIndex + 1).padStart(2, '0')}
+            </Text>
+          </View>
+          <View style={styles.resultQuestionContent}>
+            <View style={styles.resultHeaderTopRow}>
+              <View style={styles.resultMetaRow}>
+                <View style={styles.resultMetaPill}>
+                  <Text style={styles.resultMetaPillText}>
+                    {formatQuestionTypeLabel(question.type)}
+                  </Text>
+                </View>
+                <View style={[styles.resultMetaPill, styles.resultMetaPillMuted]}>
+                  <Text style={[styles.resultMetaPillText, styles.resultMetaPillTextMuted]}>
+                    {formatSelectionCountLabel(totalSelections, question.type)}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.resultToggle, isExpanded ? styles.resultToggleExpanded : null]}>
+                <Text
+                  style={[
+                    styles.resultToggleText,
+                    isExpanded ? styles.resultToggleTextExpanded : null,
+                  ]}
+                >
+                  Detail
+                </Text>
+                <Animated.View
+                  style={[
+                    styles.resultToggleIconWrap,
+                    {
+                      transform: [{ rotate: animatedChevronRotation }],
+                    },
+                  ]}
+                >
+                  <ChevronDown
+                    color={isExpanded ? colors.primary : colors.textSubtle}
+                    size={16}
+                    strokeWidth={2.6}
+                  />
+                </Animated.View>
+              </View>
+            </View>
+            <Text numberOfLines={isExpanded ? undefined : 2} style={styles.tableQuestion}>
+              {question.title}
+            </Text>
+            <View style={styles.resultSummaryRowCompact}>
+              <View style={styles.resultSummaryPillCompact}>
+                <Text style={styles.resultSummaryPillLabel}>Top option</Text>
+                <Text numberOfLines={1} style={styles.resultSummaryPillValue}>
+                  {leadingOption && highestResponseCount > 0
+                    ? leadingOption.label
+                    : 'No responses yet'}
+                </Text>
+              </View>
+              <View
+                style={[styles.resultSummaryPillCompact, styles.resultSummaryPillCompactAccent]}
+              >
+                <Text style={[styles.resultSummaryPillLabel, styles.resultSummaryPillLabelAccent]}>
+                  Lead share
+                </Text>
+                <Text style={[styles.resultSummaryPillValue, styles.resultSummaryPillValueAccent]}>
+                  {leadingOption && highestResponseCount > 0
+                    ? `${highestResponseCount} • ${formatPercentLabel(
+                        highestResponseCount,
+                        totalSelections,
+                      )}`
+                    : '0 • 0%'}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Pressable>
+
+      <Animated.View
+        pointerEvents={isExpanded ? 'auto' : 'none'}
+        style={[
+          styles.resultExpandedWrap,
+          {
+            height: animatedContainerHeight,
+          },
+        ]}
+      >
+        <Animated.View
+          onLayout={(event) => {
+            const nextHeight = Math.ceil(event.nativeEvent.layout.height);
+
+            if (nextHeight !== expandedContentHeight) {
+              setExpandedContentHeight(nextHeight);
+            }
+          }}
+          style={[
+            styles.resultExpandedSection,
+            {
+              opacity: animatedContentOpacity,
+              transform: [{ translateY: animatedContentTranslateY }],
+            },
+          ]}
+        >
+          <Text style={styles.resultHelperText}>{question.helperText}</Text>
+          <Text style={styles.tableMeta}>{question.id}</Text>
+          <View style={styles.resultOptionsList}>
+            {question.options.map((option) => {
+              const isTopChoice =
+                highestResponseCount > 0 && option.responseCount === highestResponseCount;
+              const barWidth =
+                highestResponseCount > 0
+                  ? (`${Math.max(
+                      (option.responseCount / highestResponseCount) * 100,
+                      10,
+                    )}%` as const)
+                  : ('0%' as const);
+
+              return (
+                <View
+                  key={option.id}
+                  style={[styles.resultOptionCard, isTopChoice ? styles.resultOptionCardTop : null]}
+                >
+                  <View style={styles.resultOptionHeader}>
+                    <Text
+                      style={[
+                        styles.resultOptionLabel,
+                        isTopChoice ? styles.resultOptionLabelTop : null,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                    <View style={styles.resultOptionCountWrap}>
+                      <Text
+                        style={[
+                          styles.resultOptionCount,
+                          isTopChoice ? styles.resultOptionCountTop : null,
+                        ]}
+                      >
+                        {option.responseCount}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.resultOptionPercent,
+                          isTopChoice ? styles.resultOptionPercentTop : null,
+                        ]}
+                      >
+                        {formatPercentLabel(option.responseCount, totalSelections)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.resultOptionBarRow}>
+                    <View style={styles.resultOptionBarTrack}>
+                      <View
+                        style={[
+                          styles.resultOptionBarFill,
+                          isTopChoice ? styles.resultOptionBarFillTop : null,
+                          {
+                            width: barWidth,
+                          },
+                        ]}
+                      />
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </Animated.View>
+      </Animated.View>
+    </View>
+  );
+}
+
 export default function AdminDashboardScreen({ navigation }: AdminDashboardScreenProps) {
   const { colors } = useTheme();
   const { isTablet } = useResponsiveLayout();
@@ -91,6 +354,7 @@ export default function AdminDashboardScreen({ navigation }: AdminDashboardScree
   const [isUpdatingFilter, setIsUpdatingFilter] = useState(false);
   const [isClearResponsesModalVisible, setIsClearResponsesModalVisible] = useState(false);
   const [isClearingResponses, setIsClearingResponses] = useState(false);
+  const [expandedResultQuestionId, setExpandedResultQuestionId] = useState<string | null>(null);
   const [selectedActivityDay, setSelectedActivityDay] = useState<string | null>(null);
   const [selectedDayRespondents, setSelectedDayRespondents] = useState<SurveyRespondentDetail[]>(
     [],
@@ -524,56 +788,41 @@ export default function AdminDashboardScreen({ navigation }: AdminDashboardScree
 
       <SurveySurfaceCard style={styles.tableCard}>
         <View style={styles.tableHeader}>
-          <View>
+          <View style={styles.tableHeaderContent}>
             <Text style={styles.cardTitle}>Detailed Results</Text>
-            <Text style={styles.cardSubtitle}>Aggregate responses per question.</Text>
+            <Text style={styles.cardSubtitle}>
+              Keep this list compact. Tap a question only when you want to inspect the option
+              breakdown.
+            </Text>
           </View>
-        </View>
-        <View style={styles.tableColumns}>
-          <View style={styles.tableQuestionColumn}>
-            <Text style={styles.tableColumnLabel}>Question Text</Text>
-          </View>
-          <View style={styles.tableAnswerColumn}>
-            <Text style={styles.tableColumnLabel}>Answer Options & Choice Count</Text>
-          </View>
-        </View>
-
-        {displayedQuestions.map((question) => {
-          const highestResponseCount = question.options.reduce(
-            (highest, option) => Math.max(highest, option.responseCount),
-            0,
-          );
-
-          return (
-            <View key={question.id} style={styles.tableRow}>
-              <View style={styles.tableQuestionColumn}>
-                <Text style={styles.tableQuestion}>{question.title}</Text>
-                <Text style={styles.tableMeta}>
-                  {question.id} ·{' '}
-                  {question.type === 'multiple' ? 'Multiple Choice' : 'Single Choice'}
-                </Text>
-              </View>
-              <View style={styles.tableAnswerColumn}>
-                <View style={styles.chipRow}>
-                  {question.options.map((option) => {
-                    const isTopChoice = option.responseCount === highestResponseCount;
-
-                    return (
-                      <View
-                        key={option.id}
-                        style={[styles.chip, isTopChoice ? styles.chipStrong : null]}
-                      >
-                        <Text style={[styles.chipText, isTopChoice ? styles.chipStrongText : null]}>
-                          {option.label}: {option.responseCount} customers
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              </View>
+          <View style={styles.resultsSummaryRow}>
+            <View style={styles.resultsSummaryPill}>
+              <Text style={styles.resultsSummaryLabel}>Live questions</Text>
+              <Text style={styles.resultsSummaryValue}>{displayedQuestions.length}</Text>
             </View>
-          );
-        })}
+            <View style={[styles.resultsSummaryPill, styles.resultsSummaryPillAccent]}>
+              <Text style={styles.resultsSummaryLabel}>Survey sessions</Text>
+              <Text style={styles.resultsSummaryValue}>{metrics.responseCount}</Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.resultsList}>
+          {displayedQuestions.map((question, questionIndex) => (
+            <ResultAccordionItem
+              key={question.id}
+              colors={colors}
+              isExpanded={expandedResultQuestionId === question.id}
+              onToggle={() =>
+                setExpandedResultQuestionId((currentQuestionId) =>
+                  currentQuestionId === question.id ? null : question.id,
+                )
+              }
+              question={question}
+              questionIndex={questionIndex}
+              styles={styles}
+            />
+          ))}
+        </View>
         <View style={styles.tableFooter}>
           <Pressable
             onPress={() =>

@@ -226,7 +226,7 @@ export const useSurveyStore = create<SurveyStore>((set, get) => ({
   },
 
   completeSurvey: () => {
-    set({ sessionStage: 'completed' });
+    set({ sessionStage: 'completed', participant: {} });
   },
 
   submitSurveySession: async () => {
@@ -258,6 +258,7 @@ export const useSurveyStore = create<SurveyStore>((set, get) => ({
         questions,
         activity,
         availableActivityYears,
+        participant: {},
         sessionStage: 'completed',
         isSubmittingSurvey: false,
       });

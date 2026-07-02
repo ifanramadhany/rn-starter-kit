@@ -19,7 +19,6 @@ type SurveyCompletedScreenProps = NativeStackScreenProps<
 export default function SurveyCompletedScreen({ navigation }: SurveyCompletedScreenProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const participant = useSurveyStore((state) => state.participant);
   const answers = useSurveyStore((state) => state.answers);
   const restartSurvey = useSurveyStore((state) => state.restartSurvey);
   const answeredCount = Object.keys(answers).length;
@@ -47,7 +46,7 @@ export default function SurveyCompletedScreen({ navigation }: SurveyCompletedScr
           </View>
           <View style={styles.summaryChip}>
             <Text style={styles.summaryChipText}>
-              Segment {participant.gender ?? 'not set'} · {participant.ageRange ?? 'not set'}
+              Gender and age range cleared for next session
             </Text>
           </View>
         </View>
