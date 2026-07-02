@@ -10,26 +10,30 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       overflow: 'visible',
     },
     introCard: {
-      gap: 10,
+      width: '100%',
+      maxWidth: isTablet ? 720 : undefined,
+      alignSelf: 'center',
+      gap: isTablet ? 8 : 10,
+      padding: isTablet ? 20 : 24,
     },
     introTitle: {
       color: colors.text,
-      fontSize: 18,
+      fontSize: isTablet ? 17 : 18,
       fontWeight: '700',
     },
     introText: {
       color: colors.textMuted,
-      fontSize: 15,
-      lineHeight: 22,
+      fontSize: isTablet ? 14 : 15,
+      lineHeight: isTablet ? 20 : 22,
     },
     statusRow: {
-      gap: 10,
+      gap: isTablet ? 8 : 10,
     },
     statusChip: {
       alignSelf: 'flex-start',
       borderRadius: 999,
-      paddingHorizontal: 14,
-      paddingVertical: 8,
+      paddingHorizontal: isTablet ? 12 : 14,
+      paddingVertical: isTablet ? 7 : 8,
       backgroundColor: colors.primarySoft,
     },
     statusChipActive: {
@@ -37,7 +41,7 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
     },
     statusChipText: {
       color: colors.primary,
-      fontSize: 13,
+      fontSize: 12,
       fontWeight: '700',
     },
     statusChipTextActive: {
@@ -45,8 +49,8 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
     },
     statusHint: {
       color: colors.textSubtle,
-      fontSize: 14,
-      lineHeight: 20,
+      fontSize: isTablet ? 13 : 14,
+      lineHeight: isTablet ? 18 : 20,
     },
     listContainer: {
       flex: 1,
@@ -56,6 +60,9 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
     listViewport: {
       flex: 1,
       minHeight: 0,
+      width: '100%',
+      maxWidth: isTablet ? 720 : undefined,
+      alignSelf: 'center',
       overflow: 'visible',
     },
     listContent: {
@@ -79,8 +86,9 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
     dragOverlayCard: {
       flexDirection: isTablet ? 'row' : 'column',
       alignItems: isTablet ? 'center' : 'flex-start',
-      gap: 16,
-      paddingHorizontal: 20,
+      gap: isTablet ? 14 : 16,
+      paddingVertical: isTablet ? 18 : 24,
+      paddingHorizontal: isTablet ? 18 : 20,
       borderColor: colors.secondary,
       backgroundColor: colors.surface,
       shadowOpacity: 0.34,
@@ -89,13 +97,14 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       elevation: 18,
     },
     itemSeparator: {
-      height: 14,
+      height: isTablet ? 12 : 14,
     },
     item: {
       flexDirection: isTablet ? 'row' : 'column',
       alignItems: isTablet ? 'center' : 'flex-start',
-      gap: 16,
-      paddingHorizontal: 20,
+      gap: isTablet ? 14 : 16,
+      paddingVertical: isTablet ? 18 : 24,
+      paddingHorizontal: isTablet ? 18 : 20,
       overflow: 'visible',
     },
     itemActive: {
@@ -111,8 +120,9 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
     placeholderCard: {
       flexDirection: isTablet ? 'row' : 'column',
       alignItems: isTablet ? 'center' : 'flex-start',
-      gap: 16,
-      paddingHorizontal: 20,
+      gap: isTablet ? 14 : 16,
+      paddingVertical: isTablet ? 18 : 24,
+      paddingHorizontal: isTablet ? 18 : 20,
       borderStyle: 'dashed',
       borderColor: colors.border,
       backgroundColor: colors.surfaceMuted,
@@ -123,36 +133,36 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
     itemLead: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
-      minWidth: 92,
+      gap: isTablet ? 10 : 12,
+      minWidth: isTablet ? 82 : 92,
     },
     dragBadge: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: isTablet ? 36 : 40,
+      height: isTablet ? 36 : 40,
+      borderRadius: isTablet ? 18 : 20,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.surfaceStrong,
     },
     itemOrder: {
       color: colors.textSubtle,
-      fontSize: 13,
+      fontSize: 12,
       fontWeight: '700',
     },
     itemContent: {
       flex: 1,
-      gap: 6,
+      gap: isTablet ? 4 : 6,
     },
     itemTitle: {
       color: colors.text,
-      fontSize: 18,
-      lineHeight: 24,
+      fontSize: isTablet ? 16 : 18,
+      lineHeight: isTablet ? 22 : 24,
       fontWeight: '700',
     },
     itemMeta: {
       color: colors.textMuted,
-      fontSize: 14,
-      lineHeight: 20,
+      fontSize: isTablet ? 13 : 14,
+      lineHeight: isTablet ? 18 : 20,
     },
     doneButton: {
       alignSelf: 'flex-end',

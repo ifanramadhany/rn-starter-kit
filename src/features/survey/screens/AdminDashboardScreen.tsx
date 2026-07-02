@@ -52,7 +52,7 @@ const monthOptions = Array.from({ length: 12 }, (_, month) => ({
   label: monthFormatter.format(new Date(2026, month, 1)),
   shortLabel: shortMonthFormatter.format(new Date(2026, month, 1)),
 }));
-const ACTIVITY_CHART_HEIGHT = 168;
+const ACTIVITY_CHART_HEIGHT = 184;
 const ACTIVITY_CHART_ROWS = 4;
 const ACTIVITY_CHART_LABEL_SPACE = 26;
 
@@ -395,7 +395,7 @@ export default function AdminDashboardScreen({ navigation }: AdminDashboardScree
     (peakPoint, point) => (point.completions > (peakPoint?.completions ?? 0) ? point : peakPoint),
     null,
   );
-  const chartPlotWidth = activityDisplayPoints.length * (isTablet ? 42 : 36);
+  const chartPlotWidth = activityDisplayPoints.length * (isTablet ? 35 : 30);
   const chartGridOffsets = activityScaleValues.map(
     (_value, index) => (index * ACTIVITY_CHART_HEIGHT) / ACTIVITY_CHART_ROWS,
   );

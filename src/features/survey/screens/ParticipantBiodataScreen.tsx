@@ -29,15 +29,32 @@ const ageOptions: Array<{ label: string; subtitle: string; value: ParticipantAge
   { label: '56+', subtitle: 'Senior participant segment', value: '56+' },
 ];
 
+const SESSION_SETUP_SECONDS = 60;
+const QUESTION_RESPONSE_SECONDS = 15;
+
+function formatEstimatedSessionTime(activeQuestionCount: number) {
+  const totalSeconds = SESSION_SETUP_SECONDS + activeQuestionCount * QUESTION_RESPONSE_SECONDS;
+  const estimatedMinutes = Math.max(1, Math.ceil(totalSeconds / 60));
+
+  return `~${estimatedMinutes} minute${estimatedMinutes === 1 ? '' : 's'}`;
+}
+
 export default function ParticipantBiodataScreen({ navigation }: ParticipantBiodataScreenProps) {
   const { colors } = useTheme();
   const { isTablet } = useResponsiveLayout();
   const styles = useMemo(() => createStyles(colors, isTablet), [colors, isTablet]);
+  const activeQuestionCount = useSurveyStore(
+    (state) => state.questions.filter((question) => question.status === 'active').length,
+  );
   const participant = useSurveyStore((state) => state.participant);
   const setGender = useSurveyStore((state) => state.setGender);
   const setAgeRange = useSurveyStore((state) => state.setAgeRange);
   const startSurvey = useSurveyStore((state) => state.startSurvey);
   const canStart = Boolean(participant.gender && participant.ageRange);
+  const estimatedSessionTime = useMemo(
+    () => formatEstimatedSessionTime(activeQuestionCount),
+    [activeQuestionCount],
+  );
 
   return (
     <SurveyScaffold
@@ -101,7 +118,7 @@ export default function ParticipantBiodataScreen({ navigation }: ParticipantBiod
       <SurveySurfaceCard style={styles.footerCard}>
         <View style={styles.footerRow}>
           <Text style={styles.footerLabel}>Estimated session time</Text>
-          <Text style={styles.footerValue}>~4 minutes</Text>
+          <Text style={styles.footerValue}>{estimatedSessionTime}</Text>
         </View>
         <View style={styles.footerRow}>
           <Text style={styles.footerLabel}>Privacy mode</Text>
