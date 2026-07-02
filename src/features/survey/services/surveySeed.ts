@@ -1,4 +1,17 @@
-import type { DashboardActivityPoint, SurveyQuestion } from '../types';
+import type {
+  DashboardActivityPoint,
+  ParticipantAgeRange,
+  ParticipantGender,
+  SurveyQuestion,
+} from '../types';
+
+export type SeededSurveySubmission = {
+  id: string;
+  completedAt: string;
+  gender: ParticipantGender;
+  ageRange: ParticipantAgeRange;
+  answers: Record<string, string[]>;
+};
 
 export function createCurrentMonthActivity(
   referenceDate = new Date(),
@@ -17,6 +30,120 @@ export function createCurrentMonthActivity(
       highlighted: highlightedDay !== null && dayNumber === highlightedDay,
     };
   });
+}
+
+function padDatePart(value: number) {
+  return String(value).padStart(2, '0');
+}
+
+const june2026DailyResponseCounts = [
+  7, 9, 8, 11, 10, 12, 9, 13, 11, 10, 14, 15, 12, 11, 13, 16, 17, 12, 10, 14, 15, 13, 12, 11, 16,
+  18, 17, 14, 13, 16,
+] as const;
+
+const respondentGenderPattern: ParticipantGender[] = [
+  'female',
+  'female',
+  'male',
+  'female',
+  'male',
+  'female',
+  'male',
+  'other',
+];
+
+const respondentAgePattern: ParticipantAgeRange[] = [
+  '18-35',
+  '18-35',
+  '36-55',
+  '18-35',
+  '36-55',
+  '56+',
+  '18-35',
+  '36-55',
+];
+
+const hospitalityOptionPool = [1, 1, 1, 2, 2, 2, 2, 3, 4] as const;
+const facilityOptionPool = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4] as const;
+const doctorOptionPool = [1, 1, 1, 1, 1, 2, 2, 2, 3, 4] as const;
+const busyWaitTimePool = [1, 2, 2, 2, 3, 3, 3, 4] as const;
+const calmWaitTimePool = [1, 1, 2, 2, 2, 3, 3, 4] as const;
+const overallSatisfactionPool = [1, 1, 1, 1, 2, 2, 2, 3, 4, 5] as const;
+const concernProfiles = [
+  ['Q-3009-1'],
+  ['Q-3009-2'],
+  ['Q-3009-3'],
+  ['Q-3009-4'],
+  ['Q-3009-5'],
+  ['Q-3009-1', 'Q-3009-5'],
+  ['Q-3009-1', 'Q-3009-2'],
+  ['Q-3009-3', 'Q-3009-5'],
+  ['Q-3009-1', 'Q-3009-4'],
+  ['Q-3009-2', 'Q-3009-4'],
+] as const;
+
+function pickOptionId(questionId: string, pool: readonly number[], seed: number) {
+  const optionIndex = pool[Math.abs(seed) % pool.length] ?? 1;
+  return `${questionId}-${optionIndex}`;
+}
+
+function createJune2026Timestamp(day: number, slotIndex: number) {
+  const minutesFromStart = (day * 23 + slotIndex * 37) % (10 * 60);
+  const totalMinutes = 8 * 60 + minutesFromStart;
+  const hour = Math.floor(totalMinutes / 60);
+  const minute = totalMinutes % 60;
+  const second = (day * 11 + slotIndex * 17) % 60;
+
+  return `2026-06-${padDatePart(day)}T${padDatePart(hour)}:${padDatePart(minute)}:${padDatePart(
+    second,
+  )}.000`;
+}
+
+function createSeededAnswers(day: number, dailyCount: number, responseSeed: number) {
+  const isBusyDay = dailyCount >= 15;
+  const waitTimePool = isBusyDay ? busyWaitTimePool : calmWaitTimePool;
+  const concernProfile =
+    concernProfiles[(responseSeed + day + (isBusyDay ? 2 : 0)) % concernProfiles.length] ??
+    concernProfiles[0];
+
+  return {
+    'Q-3001': [pickOptionId('Q-3001', hospitalityOptionPool, responseSeed + day)],
+    'Q-3002': [pickOptionId('Q-3002', hospitalityOptionPool, responseSeed + day * 2)],
+    'Q-3003': [pickOptionId('Q-3003', facilityOptionPool, responseSeed + day * 3)],
+    'Q-3004': [pickOptionId('Q-3004', waitTimePool, responseSeed + dailyCount)],
+    'Q-3005': [pickOptionId('Q-3005', doctorOptionPool, responseSeed + 5)],
+    'Q-3006': [pickOptionId('Q-3006', doctorOptionPool, responseSeed + 7)],
+    'Q-3007': [pickOptionId('Q-3007', doctorOptionPool, responseSeed + 11)],
+    'Q-3008': [pickOptionId('Q-3008', doctorOptionPool, responseSeed + 13)],
+    'Q-3009': [...concernProfile],
+    'Q-3010': [pickOptionId('Q-3010', overallSatisfactionPool, responseSeed + dailyCount * 2)],
+  };
+}
+
+export function createSeededJune2026Submissions(): SeededSurveySubmission[] {
+  const submissions: SeededSurveySubmission[] = [];
+  let responseIndex = 0;
+
+  for (const [dayIndex, dailyCount] of june2026DailyResponseCounts.entries()) {
+    const day = dayIndex + 1;
+
+    for (let slotIndex = 0; slotIndex < dailyCount; slotIndex += 1) {
+      const responseSeed = responseIndex + day * 17 + slotIndex * 29;
+
+      submissions.push({
+        id: `seed-june-2026-${String(responseIndex + 1).padStart(3, '0')}`,
+        completedAt: createJune2026Timestamp(day, slotIndex),
+        gender: respondentGenderPattern[responseSeed % respondentGenderPattern.length] ?? 'female',
+        ageRange:
+          respondentAgePattern[(responseSeed + day) % respondentAgePattern.length] ?? '18-35',
+        answers: createSeededAnswers(day, dailyCount, responseSeed),
+      });
+
+      responseIndex += 1;
+    }
+  }
+
+  return submissions;
 }
 
 export const initialSurveyQuestions: SurveyQuestion[] = [

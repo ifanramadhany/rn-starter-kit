@@ -33,6 +33,19 @@ const monthOptions = Array.from({ length: 12 }, (_, month) => ({
   label: monthFormatter.format(new Date(2026, month, 1)),
   shortLabel: shortMonthFormatter.format(new Date(2026, month, 1)),
 }));
+const ACTIVITY_CHART_HEIGHT = 168;
+const ACTIVITY_CHART_ROWS = 4;
+const ACTIVITY_CHART_LABEL_SPACE = 26;
+
+function createActivityScale(maxValue: number) {
+  const stepValue = Math.max(1, Math.ceil(Math.max(maxValue, 1) / ACTIVITY_CHART_ROWS));
+  const chartCeiling = stepValue * ACTIVITY_CHART_ROWS;
+
+  return Array.from(
+    { length: ACTIVITY_CHART_ROWS + 1 },
+    (_, index) => chartCeiling - stepValue * index,
+  );
+}
 
 function formatResponseLabel(completions: number) {
   return `${completions} ${completions === 1 ? 'response' : 'responses'}`;
@@ -88,16 +101,21 @@ export default function AdminDashboardScreen({ navigation }: AdminDashboardScree
     (largestValue, day) => Math.max(largestValue, day.completions),
     1,
   );
+  const activityScaleValues = useMemo(
+    () => createActivityScale(maxActivityValue),
+    [maxActivityValue],
+  );
+  const chartCeiling = activityScaleValues[0] ?? 1;
   const totalPeriodResponses = activity.reduce(
     (responseCount, day) => responseCount + day.completions,
     0,
   );
   const activityDisplayPoints = activity.map((point) => ({
     ...point,
-    barStyle: {
-      height:
-        point.completions > 0 ? Math.max((point.completions / maxActivityValue) * 152, 20) : 10,
-    },
+    barHeight:
+      point.completions > 0
+        ? Math.max((point.completions / chartCeiling) * ACTIVITY_CHART_HEIGHT, 14)
+        : 8,
   }));
   const selectedMonthLabel = monthOptions[activityPeriod.month]?.label ?? monthOptions[0].label;
   const selectedYearLabel = String(activityPeriod.year);
@@ -107,6 +125,16 @@ export default function AdminDashboardScreen({ navigation }: AdminDashboardScree
       : null;
   const yearOptions =
     availableActivityYears.length > 0 ? availableActivityYears : [activityPeriod.year];
+  const sortedYearOptions = [...yearOptions].sort((leftYear, rightYear) => rightYear - leftYear);
+  const activeDaysCount = activity.filter((point) => point.completions > 0).length;
+  const peakActivityPoint = activity.reduce<(typeof activity)[number] | null>(
+    (peakPoint, point) => (point.completions > (peakPoint?.completions ?? 0) ? point : peakPoint),
+    null,
+  );
+  const chartPlotWidth = activityDisplayPoints.length * (isTablet ? 42 : 36);
+  const chartGridOffsets = activityScaleValues.map(
+    (_value, index) => (index * ACTIVITY_CHART_HEIGHT) / ACTIVITY_CHART_ROWS,
+  );
 
   function closeDayDetailModal() {
     setSelectedActivityDay(null);
@@ -265,105 +293,202 @@ export default function AdminDashboardScreen({ navigation }: AdminDashboardScree
                   )} tracked for ${selectedMonthLabel} ${selectedYearLabel}.`}
             </Text>
           </View>
-          <View style={styles.filterRow}>
-            <Pressable
-              disabled={isUpdatingFilter}
-              onPress={() =>
-                setOpenFilter((currentFilter) => (currentFilter === 'month' ? null : 'month'))
-              }
-              style={[
-                styles.filterChip,
-                openFilter === 'month' ? styles.filterChipActive : null,
-                isUpdatingFilter ? styles.filterChipDisabled : null,
-              ]}
-            >
-              <Text style={styles.filterChipText}>{selectedMonthLabel}</Text>
-              <ChevronDown color={colors.textSubtle} size={14} strokeWidth={2.4} />
-            </Pressable>
-            <Pressable
-              disabled={isUpdatingFilter}
-              onPress={() =>
-                setOpenFilter((currentFilter) => (currentFilter === 'year' ? null : 'year'))
-              }
-              style={[
-                styles.filterChip,
-                openFilter === 'year' ? styles.filterChipActive : null,
-                isUpdatingFilter ? styles.filterChipDisabled : null,
-              ]}
-            >
-              <Text style={styles.filterChipText}>{selectedYearLabel}</Text>
-              <ChevronDown color={colors.textSubtle} size={14} strokeWidth={2.4} />
-            </Pressable>
+          <View style={[styles.filterArea, openFilter ? styles.filterAreaOpen : null]}>
+            <View style={styles.filterRow}>
+              <Pressable
+                disabled={isUpdatingFilter}
+                onPress={() =>
+                  setOpenFilter((currentFilter) => (currentFilter === 'month' ? null : 'month'))
+                }
+                style={[
+                  styles.filterSelectButton,
+                  openFilter === 'month' ? styles.filterSelectButtonActive : null,
+                  isUpdatingFilter ? styles.filterSelectButtonDisabled : null,
+                ]}
+              >
+                <Text style={styles.filterSelectLabel}>Month</Text>
+                <View style={styles.filterSelectValueRow}>
+                  <Text style={styles.filterSelectValue}>{selectedMonthLabel}</Text>
+                  <ChevronDown color={colors.textSubtle} size={16} strokeWidth={2.3} />
+                </View>
+              </Pressable>
+
+              <Pressable
+                disabled={isUpdatingFilter}
+                onPress={() =>
+                  setOpenFilter((currentFilter) => (currentFilter === 'year' ? null : 'year'))
+                }
+                style={[
+                  styles.filterSelectButton,
+                  openFilter === 'year' ? styles.filterSelectButtonActive : null,
+                  isUpdatingFilter ? styles.filterSelectButtonDisabled : null,
+                ]}
+              >
+                <Text style={styles.filterSelectLabel}>Year</Text>
+                <View style={styles.filterSelectValueRow}>
+                  <Text style={styles.filterSelectValue}>{selectedYearLabel}</Text>
+                  <ChevronDown color={colors.textSubtle} size={16} strokeWidth={2.3} />
+                </View>
+              </Pressable>
+            </View>
+
+            {openFilter ? (
+              <View style={styles.filterDropdownPanel}>
+                <View style={styles.filterDropdownHeader}>
+                  <Text style={styles.filterDropdownTitle}>
+                    {openFilter === 'month' ? 'Select month' : 'Select year'}
+                  </Text>
+                  <Pressable onPress={() => setOpenFilter(null)} style={styles.filterDropdownClose}>
+                    <Text style={styles.filterDropdownCloseText}>Close</Text>
+                  </Pressable>
+                </View>
+                <View style={styles.filterOptionGrid}>
+                  {(openFilter === 'month' ? monthOptions : sortedYearOptions).map((option) => {
+                    const optionValue = typeof option === 'number' ? option : option.value;
+                    const optionLabel = typeof option === 'number' ? String(option) : option.label;
+                    const isSelected =
+                      openFilter === 'month'
+                        ? optionValue === activityPeriod.month
+                        : optionValue === activityPeriod.year;
+
+                    return (
+                      <Pressable
+                        key={optionValue}
+                        disabled={isUpdatingFilter}
+                        onPress={async () => {
+                          if (openFilter === 'month') {
+                            await updateMonth(optionValue);
+                            return;
+                          }
+
+                          await updateYear(optionValue);
+                        }}
+                        style={[
+                          styles.filterOption,
+                          isSelected ? styles.filterOptionActive : null,
+                          isUpdatingFilter ? styles.filterOptionDisabled : null,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.filterOptionText,
+                            isSelected ? styles.filterOptionTextActive : null,
+                          ]}
+                        >
+                          {optionLabel}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            ) : null}
           </View>
         </View>
-        {openFilter ? (
-          <View style={styles.filterPanel}>
-            <Text style={styles.filterPanelTitle}>
-              {openFilter === 'month' ? 'Select Month' : 'Select Year'}
+
+        <View style={styles.activityInsightRow}>
+          <View style={styles.activityInsightCard}>
+            <Text style={styles.activityInsightLabel}>Month total</Text>
+            <Text style={styles.activityInsightValue}>{totalPeriodResponses}</Text>
+            <Text style={styles.activityInsightMeta}>All responses recorded in this period.</Text>
+          </View>
+          <View style={styles.activityInsightCard}>
+            <Text style={styles.activityInsightLabel}>Active days</Text>
+            <Text style={styles.activityInsightValue}>{activeDaysCount}</Text>
+            <Text style={styles.activityInsightMeta}>
+              Days that received at least one survey response.
             </Text>
-            <View style={styles.filterOptionGrid}>
-              {(openFilter === 'month' ? monthOptions : yearOptions).map((option) => {
-                const optionValue = typeof option === 'number' ? option : option.value;
-                const optionLabel = typeof option === 'number' ? String(option) : option.label;
-                const isSelected =
-                  openFilter === 'month'
-                    ? optionValue === activityPeriod.month
-                    : optionValue === activityPeriod.year;
+          </View>
+          <View style={styles.activityInsightCard}>
+            <Text style={styles.activityInsightLabel}>Peak day</Text>
+            <Text style={styles.activityInsightValue}>
+              {peakActivityPoint ? peakActivityPoint.label : '--'}
+            </Text>
+            <Text style={styles.activityInsightMeta}>
+              {peakActivityPoint
+                ? `${peakActivityPoint.completions} responses on the busiest day.`
+                : 'No survey activity has been recorded yet.'}
+            </Text>
+          </View>
+        </View>
 
-                return (
-                  <Pressable
-                    key={optionValue}
-                    disabled={isUpdatingFilter}
-                    onPress={async () => {
-                      if (openFilter === 'month') {
-                        await updateMonth(optionValue);
-                        return;
-                      }
+        <View style={styles.chartBoard}>
+          <View style={styles.chartScaleColumn}>
+            {activityScaleValues.map((scaleValue) => (
+              <Text key={`scale-${scaleValue}`} style={styles.chartScaleLabel}>
+                {scaleValue}
+              </Text>
+            ))}
+          </View>
 
-                      await updateYear(optionValue);
-                    }}
-                    style={[styles.filterOption, isSelected ? styles.filterOptionActive : null]}
-                  >
-                    <Text
+          <ScrollView
+            horizontal
+            bounces={false}
+            showsHorizontalScrollIndicator={false}
+            style={styles.chartScroll}
+            contentContainerStyle={styles.chartContent}
+          >
+            <View style={[styles.chartFrame, { width: chartPlotWidth }]}>
+              {chartGridOffsets.map((offset, index) => (
+                <View
+                  key={`grid-${offset}-${index}`}
+                  style={[
+                    styles.chartGridLine,
+                    {
+                      bottom: ACTIVITY_CHART_LABEL_SPACE + offset,
+                    },
+                  ]}
+                />
+              ))}
+
+              <View style={styles.chart}>
+                {activityDisplayPoints.map((point) => {
+                  const isSelected = selectedActivityDay === point.label;
+
+                  return (
+                    <View
+                      key={point.label}
                       style={[
-                        styles.filterOptionText,
-                        isSelected ? styles.filterOptionTextActive : null,
+                        styles.chartColumnWrap,
+                        isSelected ? styles.chartColumnWrapSelected : null,
                       ]}
                     >
-                      {optionLabel}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+                      <Text
+                        style={[styles.chartValue, isSelected ? styles.chartValueSelected : null]}
+                      >
+                        {point.completions}
+                      </Text>
+                      <View
+                        style={[styles.chartTrack, isSelected ? styles.chartTrackSelected : null]}
+                      >
+                        <View
+                          style={[
+                            styles.chartColumn,
+                            point.completions === 0 ? styles.chartColumnEmpty : null,
+                            point.highlighted ? styles.chartColumnHighlighted : null,
+                            isSelected ? styles.chartColumnSelected : null,
+                            {
+                              height: point.barHeight,
+                            },
+                          ]}
+                        />
+                      </View>
+                      <Text
+                        style={[styles.chartLabel, isSelected ? styles.chartLabelSelected : null]}
+                      >
+                        {point.label}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-          </View>
-        ) : null}
-        <ScrollView
-          horizontal
-          bounces={false}
-          showsHorizontalScrollIndicator={false}
-          style={styles.chartScroll}
-          contentContainerStyle={styles.chartContent}
-        >
-          <View style={styles.chartFrame}>
-            <View style={styles.chart}>
-              {activityDisplayPoints.map((point) => (
-                <View key={point.label} style={styles.chartColumnWrap}>
-                  <Text style={styles.chartValue}>{point.completions}</Text>
-                  <View
-                    style={[
-                      styles.chartColumn,
-                      point.completions === 0 ? styles.chartColumnEmpty : null,
-                      point.highlighted ? styles.chartColumnHighlighted : null,
-                      point.barStyle,
-                    ]}
-                  />
-                  <Text style={styles.chartLabel}>{point.label}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
+
+        <View style={styles.activitySummaryHeader}>
+          <Text style={styles.cardSubtitle}>Tap a day card to see who responded on that date.</Text>
+        </View>
         <View style={styles.activitySummaryGrid}>
           {activityDisplayPoints.map((point) => (
             <Pressable

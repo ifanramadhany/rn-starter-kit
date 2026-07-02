@@ -1,5 +1,9 @@
 import { getSurveyDatabase } from './surveyDatabase';
-import { createCurrentMonthActivity, initialSurveyQuestions } from './surveySeed';
+import {
+  createCurrentMonthActivity,
+  createSeededJune2026Submissions,
+  initialSurveyQuestions,
+} from './surveySeed';
 import type {
   ActivityPeriod,
   ParticipantBiodata,
@@ -52,6 +56,7 @@ type QuestionOrderRow = {
 type SqlBatchStatement = string | [string, unknown[]];
 
 const DEFAULT_QUESTION_CATALOG_VERSION = 3;
+const DEFAULT_RESPONSE_DATASET_VERSION = 1;
 const LEGACY_DEFAULT_QUESTION_IDS = Array.from({ length: 25 }, (_, index) => `Q-${1042 + index}`);
 const CURRENT_DEFAULT_QUESTION_IDS = initialSurveyQuestions.map((question) => question.id);
 const REMOVABLE_DEFAULT_QUESTION_ID_SET = new Set([
@@ -152,6 +157,12 @@ async function executeBatch(statements: SqlBatchStatement[]) {
   const database = await getSurveyDatabase();
 
   await database.sqlBatch(statements);
+}
+
+async function executeLargeBatch(statements: SqlBatchStatement[], chunkSize = 250) {
+  for (let startIndex = 0; startIndex < statements.length; startIndex += chunkSize) {
+    await executeBatch(statements.slice(startIndex, startIndex + chunkSize));
+  }
 }
 
 async function executeQuery(statement: string, params?: unknown[]) {
@@ -308,6 +319,96 @@ async function seedDefaultQuestionsIfNeeded() {
   ]);
 
   await executeBatch(statements);
+}
+
+function createSurveySubmissionStatements(
+  participant: Required<ParticipantBiodata>,
+  answers: Record<string, string[]>,
+  completedAt: string,
+  sessionId = createLocalId('session'),
+) {
+  const statements: SqlBatchStatement[] = [
+    [
+      `
+        INSERT INTO survey_sessions (id, gender, age_range, completed_at)
+        VALUES (?, ?, ?, ?);
+      `,
+      [sessionId, participant.gender, participant.ageRange, completedAt],
+    ],
+  ];
+
+  for (const [questionId, optionIds] of Object.entries(answers)) {
+    for (const [optionIndex, optionId] of optionIds.entries()) {
+      statements.push([
+        `
+          INSERT INTO survey_answers (id, session_id, question_id, option_id)
+          VALUES (?, ?, ?, ?);
+        `,
+        [createLocalId(`answer-${optionIndex}`), sessionId, questionId, optionId],
+      ]);
+    }
+  }
+
+  return statements;
+}
+
+function createSeededSubmissionStatements() {
+  const statements: SqlBatchStatement[] = [];
+
+  for (const submission of createSeededJune2026Submissions()) {
+    statements.push([
+      `
+        INSERT OR IGNORE INTO survey_sessions (id, gender, age_range, completed_at)
+        VALUES (?, ?, ?, ?);
+      `,
+      [submission.id, submission.gender, submission.ageRange, submission.completedAt],
+    ]);
+
+    for (const [questionId, optionIds] of Object.entries(submission.answers)) {
+      for (const [optionIndex, optionId] of optionIds.entries()) {
+        statements.push([
+          `
+            INSERT OR IGNORE INTO survey_answers (id, session_id, question_id, option_id)
+            VALUES (?, ?, ?, ?);
+          `,
+          [
+            `${submission.id}-${questionId}-${optionIndex + 1}`,
+            submission.id,
+            questionId,
+            optionId,
+          ],
+        ]);
+      }
+    }
+  }
+
+  return statements;
+}
+
+async function seedDefaultResponsesIfNeeded() {
+  const seedVersionResult = await executeQuery(
+    'SELECT value FROM app_meta WHERE key = ? LIMIT 1;',
+    ['default_response_dataset_version'],
+  );
+  const currentSeedVersion =
+    seedVersionResult.rows.length > 0
+      ? Number(
+          (seedVersionResult.rows.item(0) as { value?: number | string }).value ??
+            DEFAULT_RESPONSE_DATASET_VERSION,
+        )
+      : 0;
+
+  if (currentSeedVersion >= DEFAULT_RESPONSE_DATASET_VERSION) {
+    return;
+  }
+
+  await executeLargeBatch([
+    ...createSeededSubmissionStatements(),
+    [
+      'INSERT OR REPLACE INTO app_meta (key, value) VALUES (?, ?);',
+      ['default_response_dataset_version', String(DEFAULT_RESPONSE_DATASET_VERSION)],
+    ],
+  ]);
 }
 
 async function loadQuestions() {
@@ -557,6 +658,7 @@ export const surveyRepository = {
   async initialize() {
     await runMigrations();
     await seedDefaultQuestionsIfNeeded();
+    await seedDefaultResponsesIfNeeded();
   },
 
   async getQuestions() {
@@ -645,30 +747,8 @@ export const surveyRepository = {
     participant: Required<ParticipantBiodata>,
     answers: Record<string, string[]>,
   ) {
-    const submissionId = createLocalId('session');
-    const completedAt = createStorageTimestamp();
-    const statements: SqlBatchStatement[] = [
-      [
-        `
-          INSERT INTO survey_sessions (id, gender, age_range, completed_at)
-          VALUES (?, ?, ?, ?);
-        `,
-        [submissionId, participant.gender, participant.ageRange, completedAt],
-      ],
-    ];
-
-    for (const [questionId, optionIds] of Object.entries(answers)) {
-      for (const optionId of optionIds) {
-        statements.push([
-          `
-            INSERT INTO survey_answers (id, session_id, question_id, option_id)
-            VALUES (?, ?, ?, ?);
-          `,
-          [createLocalId('answer'), submissionId, questionId, optionId],
-        ]);
-      }
-    }
-
-    await executeBatch(statements);
+    await executeBatch(
+      createSurveySubmissionStatements(participant, answers, createStorageTimestamp()),
+    );
   },
 };
