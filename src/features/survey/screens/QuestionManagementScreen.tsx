@@ -13,6 +13,7 @@ import SurveyScaffold from '../components/SurveyScaffold';
 import SurveySurfaceCard from '../components/SurveySurfaceCard';
 import { useSurveyMetrics } from '../hooks/useSurveyMetrics';
 import { useSurveyStore } from '../store/useSurveyStore';
+import type { SurveyQuestion } from '../types';
 import { createStyles } from './QuestionManagementScreen.styles';
 
 type QuestionManagementScreenProps = NativeStackScreenProps<
@@ -32,6 +33,10 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
   const [searchValue, setSearchValue] = useState('');
   const [isDeleteAllModalVisible, setIsDeleteAllModalVisible] = useState(false);
   const [isDeletingAllQuestions, setIsDeletingAllQuestions] = useState(false);
+  const [questionPendingDeletion, setQuestionPendingDeletion] = useState<SurveyQuestion | null>(
+    null,
+  );
+  const [isDeletingQuestion, setIsDeletingQuestion] = useState(false);
 
   const filteredQuestions = useMemo(() => {
     const normalizedQuery = searchValue.trim().toLowerCase();
@@ -74,6 +79,21 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
       setIsDeleteAllModalVisible(false);
     } finally {
       setIsDeletingAllQuestions(false);
+    }
+  }
+
+  async function handleDeleteQuestion() {
+    if (!questionPendingDeletion) {
+      return;
+    }
+
+    setIsDeletingQuestion(true);
+
+    try {
+      await deleteQuestion(questionPendingDeletion.id);
+      setQuestionPendingDeletion(null);
+    } finally {
+      setIsDeletingQuestion(false);
     }
   }
 
@@ -126,11 +146,11 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
         </View>
         <View style={styles.dangerRow}>
           <Pressable
-            disabled={isDeletingAllQuestions}
+            disabled={isDeletingAllQuestions || isDeletingQuestion}
             onPress={() => setIsDeleteAllModalVisible(true)}
             style={[
               styles.dangerAction,
-              isDeletingAllQuestions ? styles.dangerActionDisabled : null,
+              isDeletingAllQuestions || isDeletingQuestion ? styles.dangerActionDisabled : null,
             ]}
           >
             <Text style={styles.dangerActionText}>Remove All Questions</Text>
@@ -144,9 +164,7 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
             <QuestionListItem
               key={question.id}
               question={question}
-              onDelete={async () => {
-                await deleteQuestion(question.id);
-              }}
+              onDelete={() => setQuestionPendingDeletion(question)}
               onEdit={() =>
                 navigation.navigate('CreateQuestion', {
                   questionId: question.id,
@@ -175,6 +193,19 @@ export default function QuestionManagementScreen({ navigation }: QuestionManagem
         isSubmitting={isDeletingAllQuestions}
         onCancel={() => setIsDeleteAllModalVisible(false)}
         onConfirm={handleDeleteAllQuestions}
+      />
+      <ConfirmationModal
+        visible={questionPendingDeletion !== null}
+        title="Delete Question"
+        description={
+          questionPendingDeletion
+            ? `This will permanently delete "${questionPendingDeletion.title}" from this device, including its answer options. Existing response history will remain, but this question will no longer appear in the survey flow.`
+            : ''
+        }
+        confirmLabel="Delete Question"
+        isSubmitting={isDeletingQuestion}
+        onCancel={() => setQuestionPendingDeletion(null)}
+        onConfirm={handleDeleteQuestion}
       />
     </SurveyScaffold>
   );

@@ -67,6 +67,6 @@ describe('useSurveyStore question ordering', () => {
     expect(reorderedQuestions.map((question) => question.order)).toEqual(
       Array.from({ length: originalIds.length }, (_, index) => index + 1),
     );
-    expect(reorderedQuestions[originalIds.length - 2]?.updatedAt).toBe('Updated today');
+    expect(reorderedQuestions[originalIds.length - 2]?.updatedAt).toBe('Diperbarui hari ini');
   });
 });

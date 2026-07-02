@@ -27,7 +27,7 @@ function sortQuestions(questions: SurveyQuestion[]) {
 function normalizeOptionLabels(options: string[]) {
   const normalizedLabels = options.map((option) => option.trim()).filter(Boolean);
 
-  return normalizedLabels.length > 0 ? normalizedLabels : ['Option 1', 'Option 2'];
+  return normalizedLabels.length > 0 ? normalizedLabels : ['Opsi 1', 'Opsi 2'];
 }
 
 let questions = cloneQuestions(initialSurveyQuestions);
@@ -39,7 +39,7 @@ let sessions: Array<
 > = [];
 
 function createUpdatedLabel() {
-  return 'Updated today';
+  return 'Diperbarui hari ini';
 }
 
 function syncQuestionOrder(nextQuestions: SurveyQuestion[]) {

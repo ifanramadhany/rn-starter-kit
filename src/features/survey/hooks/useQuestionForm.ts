@@ -15,7 +15,7 @@ function createInitialValues(
       helperText: '',
       type: 'single',
       status: 'active',
-      options: ['Option 1', 'Option 2', 'Option 3'],
+      options: ['Opsi 1', 'Opsi 2', 'Opsi 3'],
     };
   }
 
@@ -28,6 +28,12 @@ function createInitialValues(
   };
 }
 
+let nextOptionFieldId = 0;
+
+function createOptionFieldKeys(count: number) {
+  return Array.from({ length: count }, () => `option-field-${nextOptionFieldId++}`);
+}
+
 export function useQuestionForm(questionId: string | undefined) {
   const questions = useSurveyStore((state) => state.questions);
   const saveQuestion = useSurveyStore((state) => state.saveQuestion);
@@ -36,15 +42,20 @@ export function useQuestionForm(questionId: string | undefined) {
     [questionId, questions],
   );
   const [values, setValues] = useState<QuestionFormValues>(initialValues);
+  const [optionFieldKeys, setOptionFieldKeys] = useState(() =>
+    createOptionFieldKeys(initialValues.options.length),
+  );
 
   useEffect(() => {
     setValues(initialValues);
+    setOptionFieldKeys(createOptionFieldKeys(initialValues.options.length));
   }, [initialValues]);
 
   const nonEmptyOptions = values.options.map((option) => option.trim()).filter(Boolean);
 
   return {
     values,
+    optionFieldKeys,
     canSubmit: values.title.trim().length > 0 && nonEmptyOptions.length >= 2,
     setTitle: (title: string) => {
       setValues((currentValues) => ({ ...currentValues, title }));
@@ -69,8 +80,9 @@ export function useQuestionForm(questionId: string | undefined) {
     addOption: () => {
       setValues((currentValues) => ({
         ...currentValues,
-        options: [...currentValues.options, `Option ${currentValues.options.length + 1}`],
+        options: [...currentValues.options, `Opsi ${currentValues.options.length + 1}`],
       }));
+      setOptionFieldKeys((currentKeys) => [...currentKeys, createOptionFieldKeys(1)[0]]);
     },
     removeOption: (optionIndex: number) => {
       setValues((currentValues) => {
@@ -83,9 +95,17 @@ export function useQuestionForm(questionId: string | undefined) {
           options: currentValues.options.filter((_, index) => index !== optionIndex),
         };
       });
+      setOptionFieldKeys((currentKeys) => {
+        if (currentKeys.length <= 2) {
+          return currentKeys;
+        }
+
+        return currentKeys.filter((_, index) => index !== optionIndex);
+      });
     },
     reset: () => {
       setValues(initialValues);
+      setOptionFieldKeys(createOptionFieldKeys(initialValues.options.length));
     },
     submit: () => saveQuestion(questionId, values),
   };

@@ -371,12 +371,25 @@ export default function AdminDashboardScreen({ navigation }: AdminDashboardScree
               onPress={async () => {
                 await openDayDetail(point.label);
               }}
-              style={styles.activitySummaryCard}
+              style={[
+                styles.activitySummaryCard,
+                selectedActivityDay === point.label ? styles.activitySummaryCardSelected : null,
+              ]}
             >
-              <Text style={styles.activitySummaryDay}>
+              <Text
+                style={[
+                  styles.activitySummaryDay,
+                  selectedActivityDay === point.label ? styles.activitySummaryDaySelected : null,
+                ]}
+              >
                 {point.label} {monthOptions[activityPeriod.month]?.shortLabel}
               </Text>
-              <Text style={styles.activitySummaryValue}>
+              <Text
+                style={[
+                  styles.activitySummaryValue,
+                  selectedActivityDay === point.label ? styles.activitySummaryValueSelected : null,
+                ]}
+              >
                 {formatResponseLabel(point.completions)}
               </Text>
             </Pressable>

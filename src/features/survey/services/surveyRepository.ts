@@ -44,10 +44,20 @@ type SessionRow = {
   age_range: string | null;
 };
 
+type QuestionOrderRow = {
+  id: string;
+  display_order: number;
+};
+
 type SqlBatchStatement = string | [string, unknown[]];
 
-const DEFAULT_QUESTION_CATALOG_VERSION = 2;
-const ORIGINAL_DEFAULT_QUESTION_COUNT = 5;
+const DEFAULT_QUESTION_CATALOG_VERSION = 3;
+const LEGACY_DEFAULT_QUESTION_IDS = Array.from({ length: 25 }, (_, index) => `Q-${1042 + index}`);
+const CURRENT_DEFAULT_QUESTION_IDS = initialSurveyQuestions.map((question) => question.id);
+const REMOVABLE_DEFAULT_QUESTION_ID_SET = new Set([
+  ...LEGACY_DEFAULT_QUESTION_IDS,
+  ...CURRENT_DEFAULT_QUESTION_IDS,
+]);
 
 function padDatePart(value: number, length = 2) {
   return String(value).padStart(length, '0');
@@ -69,7 +79,7 @@ function createLocalId(prefix: string) {
 function normalizeOptionLabels(options: string[]) {
   const normalizedLabels = options.map((option) => option.trim()).filter(Boolean);
 
-  return normalizedLabels.length > 0 ? normalizedLabels : ['Option 1', 'Option 2'];
+  return normalizedLabels.length > 0 ? normalizedLabels : ['Opsi 1', 'Opsi 2'];
 }
 
 function normalizeRespondentGender(gender: string | null): SurveyRespondentDetail['gender'] {
@@ -92,7 +102,7 @@ function formatUpdatedAt(timestamp: string) {
   const updatedAtDate = new Date(timestamp);
 
   if (Number.isNaN(updatedAtDate.getTime())) {
-    return 'Updated recently';
+    return 'Baru diperbarui';
   }
 
   const now = new Date();
@@ -107,18 +117,18 @@ function formatUpdatedAt(timestamp: string) {
   );
 
   if (diffInDays <= 0) {
-    return 'Updated today';
+    return 'Diperbarui hari ini';
   }
 
   if (diffInDays === 1) {
-    return 'Updated yesterday';
+    return 'Diperbarui kemarin';
   }
 
   if (diffInDays < 7) {
-    return `Updated ${diffInDays} days ago`;
+    return `Diperbarui ${diffInDays} hari lalu`;
   }
 
-  return `Updated ${updatedAtDate.toLocaleDateString('en-US', {
+  return `Diperbarui ${updatedAtDate.toLocaleDateString('id-ID', {
     month: 'short',
     day: 'numeric',
   })}`;
@@ -206,13 +216,17 @@ async function runMigrations() {
 }
 
 async function seedDefaultQuestionsIfNeeded() {
-  const [catalogVersionResult, countResult, maxOrderResult, existingIdsResult] = await Promise.all([
+  const [catalogVersionResult, existingQuestionsResult] = await Promise.all([
     executeQuery('SELECT value FROM app_meta WHERE key = ? LIMIT 1;', [
       'default_question_catalog_version',
     ]),
-    executeQuery('SELECT COUNT(*) AS total FROM questions LIMIT 1;'),
-    executeQuery('SELECT COALESCE(MAX(display_order), 0) AS max_order FROM questions LIMIT 1;'),
-    executeQuery('SELECT id FROM questions;'),
+    executeQuery(
+      `
+        SELECT id, display_order
+        FROM questions
+        ORDER BY display_order ASC;
+      `,
+    ),
   ]);
   const currentCatalogVersion =
     catalogVersionResult.rows.length > 0
@@ -226,28 +240,41 @@ async function seedDefaultQuestionsIfNeeded() {
     return;
   }
 
-  const totalQuestions = Number(
-    (countResult.rows.item(0) as { total?: number | string }).total ?? 0,
-  );
-  const maxDisplayOrder = Number(
-    (maxOrderResult.rows.item(0) as { max_order?: number | string }).max_order ?? 0,
-  );
-  const existingQuestionIds = new Set(
-    collectRows<{ id: string }>(existingIdsResult.rows).map((question) => question.id),
-  );
+  const existingQuestions = collectRows<QuestionOrderRow>(existingQuestionsResult.rows);
+  const removableQuestionIds = existingQuestions
+    .filter((question) => REMOVABLE_DEFAULT_QUESTION_ID_SET.has(question.id))
+    .map((question) => question.id);
+  const remainingQuestionIds = existingQuestions
+    .filter((question) => !REMOVABLE_DEFAULT_QUESTION_ID_SET.has(question.id))
+    .map((question) => question.id);
   const seededAt = createStorageTimestamp();
-
   const statements: SqlBatchStatement[] = [];
-  const targetQuestions =
-    totalQuestions === 0
-      ? initialSurveyQuestions
-      : initialSurveyQuestions
-          .slice(ORIGINAL_DEFAULT_QUESTION_COUNT)
-          .filter((question) => !existingQuestionIds.has(question.id));
 
-  let nextDisplayOrder = maxDisplayOrder + 1;
+  if (removableQuestionIds.length > 0) {
+    const placeholders = removableQuestionIds.map(() => '?').join(', ');
 
-  for (const question of targetQuestions) {
+    statements.push([
+      `DELETE FROM survey_answers WHERE question_id IN (${placeholders});`,
+      removableQuestionIds,
+    ]);
+    statements.push(
+      'DELETE FROM survey_sessions WHERE id NOT IN (SELECT DISTINCT session_id FROM survey_answers);',
+    );
+    statements.push([
+      `DELETE FROM question_options WHERE question_id IN (${placeholders});`,
+      removableQuestionIds,
+    ]);
+    statements.push([`DELETE FROM questions WHERE id IN (${placeholders});`, removableQuestionIds]);
+  }
+
+  for (const [questionIndex, questionId] of remainingQuestionIds.entries()) {
+    statements.push([
+      'UPDATE questions SET display_order = ? WHERE id = ?;',
+      [questionIndex + 1, questionId],
+    ]);
+  }
+
+  for (const [questionIndex, question] of initialSurveyQuestions.entries()) {
     statements.push([
       `
         INSERT INTO questions (id, title, helper_text, type, status, display_order, updated_at)
@@ -259,7 +286,7 @@ async function seedDefaultQuestionsIfNeeded() {
         question.helperText,
         question.type,
         question.status,
-        totalQuestions === 0 ? question.order : nextDisplayOrder,
+        remainingQuestionIds.length + questionIndex + 1,
         seededAt,
       ],
     ]);
@@ -272,10 +299,6 @@ async function seedDefaultQuestionsIfNeeded() {
         `,
         [option.id, question.id, option.label, optionIndex + 1],
       ]);
-    }
-
-    if (totalQuestions > 0) {
-      nextDisplayOrder += 1;
     }
   }
 
@@ -346,8 +369,13 @@ async function loadActivity() {
 
 async function loadActivityForPeriod(period: ActivityPeriod) {
   const referenceDate = new Date(period.year, period.month, 1);
+  const today = new Date();
+  const highlightedDay =
+    today.getFullYear() === period.year && today.getMonth() === period.month
+      ? today.getDate()
+      : null;
   const monthKey = `${period.year}-${String(period.month + 1).padStart(2, '0')}`;
-  const skeletonActivity = createCurrentMonthActivity(referenceDate);
+  const skeletonActivity = createCurrentMonthActivity(referenceDate, highlightedDay);
   const activityResult = await executeQuery(
     `
       SELECT

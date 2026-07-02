@@ -22,6 +22,7 @@ export default function CreateQuestionScreen({ navigation, route }: CreateQuesti
   const isEditing = Boolean(questionId);
   const {
     values,
+    optionFieldKeys,
     canSubmit,
     setTitle,
     setHelperText,
@@ -135,7 +136,7 @@ export default function CreateQuestionScreen({ navigation, route }: CreateQuesti
             <View style={styles.optionsList}>
               {values.options.map((option, index) => (
                 <OptionEditorRow
-                  key={`${index}-${option}`}
+                  key={optionFieldKeys[index] ?? `option-${index}`}
                   canRemove={values.options.length > 2}
                   label={option}
                   onChangeText={(nextValue) => setOptionValue(index, nextValue)}

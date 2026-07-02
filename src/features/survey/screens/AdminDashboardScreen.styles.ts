@@ -227,16 +227,26 @@ export function createStyles(colors: AppColors, isTablet: boolean) {
       borderColor: colors.border,
       gap: 4,
     },
+    activitySummaryCardSelected: {
+      backgroundColor: colors.secondaryContainer,
+      borderColor: colors.secondary,
+    },
     activitySummaryDay: {
       color: colors.text,
       fontSize: 12,
       fontWeight: '800',
+    },
+    activitySummaryDaySelected: {
+      color: colors.onSecondaryContainer,
     },
     activitySummaryValue: {
       color: colors.textMuted,
       fontSize: 12,
       lineHeight: 18,
       fontWeight: '600',
+    },
+    activitySummaryValueSelected: {
+      color: colors.onSecondaryContainer,
     },
     modalOverlay: {
       flex: 1,
