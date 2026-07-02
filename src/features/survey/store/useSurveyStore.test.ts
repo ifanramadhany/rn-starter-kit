@@ -69,4 +69,20 @@ describe('useSurveyStore question ordering', () => {
     );
     expect(reorderedQuestions[originalIds.length - 2]?.updatedAt).toBe('Diperbarui hari ini');
   });
+
+  test('reorderQuestions can move the last question to the top', async () => {
+    const originalIds = initialSurveyQuestions.map((question) => question.id);
+    const lastQuestionId = originalIds[originalIds.length - 1];
+    const reorderedIds = [lastQuestionId, ...originalIds.slice(0, -1)];
+
+    await useSurveyStore.getState().reorderQuestions(reorderedIds);
+
+    const reorderedQuestions = useSurveyStore.getState().questions;
+
+    expect(reorderedQuestions.map((question) => question.id)).toEqual(reorderedIds);
+    expect(reorderedQuestions.map((question) => question.order)).toEqual(
+      Array.from({ length: reorderedIds.length }, (_, index) => index + 1),
+    );
+    expect(reorderedQuestions[0]?.updatedAt).toBe('Diperbarui hari ini');
+  });
 });

@@ -43,6 +43,7 @@ type SurveyStore = {
   toggleQuestionStatus: (questionId: string) => Promise<void>;
   deleteQuestion: (questionId: string) => Promise<void>;
   deleteAllQuestions: () => Promise<void>;
+  reorderQuestions: (questionIds: string[]) => Promise<void>;
   moveQuestion: (questionId: string, direction: QuestionMoveDirection) => Promise<void>;
   saveQuestion: (questionId: string | undefined, values: QuestionFormValues) => Promise<string>;
 };
@@ -348,6 +349,15 @@ export const useSurveyStore = create<SurveyStore>((set, get) => ({
     });
   },
 
+  reorderQuestions: async (questionIds) => {
+    const persistedQuestions = await surveyRepository.reorderQuestions(questionIds);
+
+    set((state) => ({
+      questions: persistedQuestions,
+      activeQuestionIndex: clampQuestionIndex(persistedQuestions, state.activeQuestionIndex),
+    }));
+  },
+
   moveQuestion: async (questionId, direction) => {
     const questions = sortQuestions(get().questions);
     const questionIndex = questions.findIndex((question) => question.id === questionId);
@@ -365,15 +375,7 @@ export const useSurveyStore = create<SurveyStore>((set, get) => ({
     const nextQuestions = [...questions];
     const [question] = nextQuestions.splice(questionIndex, 1);
     nextQuestions.splice(targetIndex, 0, question);
-
-    const persistedQuestions = await surveyRepository.reorderQuestions(
-      nextQuestions.map((currentQuestion) => currentQuestion.id),
-    );
-
-    set((state) => ({
-      questions: persistedQuestions,
-      activeQuestionIndex: clampQuestionIndex(persistedQuestions, state.activeQuestionIndex),
-    }));
+    await get().reorderQuestions(nextQuestions.map((currentQuestion) => currentQuestion.id));
   },
 
   saveQuestion: async (questionId, values) => {

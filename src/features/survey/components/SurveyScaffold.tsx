@@ -74,7 +74,7 @@ export default function SurveyScaffold({
           {content}
         </ScrollView>
       ) : (
-        <View style={styles.scrollContent}>{content}</View>
+        <View style={styles.staticContent}>{content}</View>
       )}
     </SafeAreaView>
   );
@@ -111,12 +111,19 @@ function createStyles(colors: AppColors, isTablet: boolean, contentWidth: 'narro
       opacity: 0.55,
     },
     scrollContent: {
+      flexGrow: 1,
+      minHeight: '100%',
+      paddingBottom: 128,
+    },
+    staticContent: {
+      flex: 1,
       paddingBottom: 128,
     },
     content: {
       width: '100%',
       maxWidth: contentWidth === 'narrow' ? (isTablet ? 860 : 720) : isTablet ? 1180 : 860,
       alignSelf: 'center',
+      flexGrow: 1,
       paddingHorizontal: isTablet ? 32 : 18,
       paddingTop: 8,
       gap: 24,
